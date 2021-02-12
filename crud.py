@@ -2,13 +2,8 @@
 A CRUD file helps simplify the Flask route functions called in server.py. """
 
 # The following is defined in model.py –
-from model import db, connect_to_db,
-                  User, 
-                  Interaction, 
-                  Interaction_type, 
-                  Phrase,  
-                  Score
-                  # if you import Sentiment, it is for a backref to Score
+from model import db, connect_to_db, User, Interaction, Interaction_type, Phrase, Score, Sentiment
+# if you import Sentiment, it is for a backref to Score
 
 
 
@@ -64,7 +59,7 @@ def log_interaction_type(interactiontype_name):
 
 def create_phrase(phrase):
     """Create and return a new phrase."""
-# open the csv in the seeddatabase.py, not here
+# open the csv in the seed_database.py, not here
 # pass in a phrase that is string as argument
     new_phrase = Phrase(phrase=phrase_text)
 

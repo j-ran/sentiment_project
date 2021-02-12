@@ -8,6 +8,8 @@ from datetime import datetime
 # spaCy
 
 db = SQLAlchemy()
+# NB – SQLAlchemy is creating a database out of the commands in this file.
+
 
 
 # Six Classes in the Model –
@@ -76,7 +78,7 @@ class Interaction_type(db.Model):
     interactiontype_id = db.Column(db.Integer, 
                                    autoincrement=True, 
                                    primary_key=True)
-    interactiontype_name = db.Column(db.str)
+    interactiontype_name = db.Column(db.String)
 
     # interactions = a property from class Interaction 
     # accessible through the Interaction_type Class (which is this Class)
@@ -107,7 +109,7 @@ class Phrase(db.Model):
     phrase_state = db.Column(db.String(2))
     
     job_at_phrase = db.Column(db.String(20))
-    age_at_phrase = db.Column(db.Integer(3))
+    age_at_phrase = db.Column(db.Integer())
     phrase_text = db.Column(db.String(120))                                    
 
     # Using three Foreign Keys and three backrefs
@@ -122,7 +124,7 @@ class Phrase(db.Model):
     # Add a note in the referenced Class about this table
     phrase_interaction = db.relationship('Interaction', backref='phrases')
     phrase_user = db.relationship('User', backref='phrases')
-    phrase_score = db.relationship('Score', backref='phrases')  
+#    phrase_score = db.relationship('Score', backref='phrases')  
 
     def __repr__(self):
         return f'<Phrase phrase_id={self.phrase_id} phrase_text={self.phrase_text}>'
