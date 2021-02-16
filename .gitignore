@@ -1,0 +1,10 @@
+werespond_quotes01.csv
+werespond_quotes02.csv
+env*
+*.DS_Store
+*secret*
+*.pyc
+__pycache__/
+*in-progress*
+*.psd
+writing_*
