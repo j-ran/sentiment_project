@@ -1,38 +1,39 @@
 """ Input a phrase and get a score of '0' (negative feeling) or '1' (positive feeling).
-This pipeline was created with a lot of help from https://nlpforhackers.io/sentiment-analysis-intro/ """
+This pipeline was created with a lot of help from https://nlpforhackers.io/sentiment-analysis-intro/ 
 
+Here's a test:
 
-import pandas as pd        
-import random
+# expecting a return of '1'
+# text = ("love love love love love love")
+
+# expecting a return of '0'
+# text = ("hate hate hate hate hate")
+
+# polar_score = swn_polarity(text)
+# print(f'The text "{text}" scores {polar_score}.')
+
+"""
+
+# scoring-related modules
 import nltk    # natural language toolkit
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
 from nltk.corpus import sentiwordnet as swn
 from nltk import sent_tokenize, word_tokenize, pos_tag
 
+# output-related modules
+import csv   
+from random import choice, randint
 
+
+# defining some important variables
+csv_filename = 'werespond_quotes04.csv'
 lemmatizer = WordNetLemmatizer()
 
-# data = pd.read_csv("labeledTrainData.tsv", header=0, delimiter="\t", quoting=3)
 
-# # # this is printing to show what is in the data file (this is from IMDB .tsv)
-# # print(data.shape) # (25000, 3) 
-# # print(data["review"][0])         # Check out the review
-# # print(data["sentiment"][0])      # Check out the sentiment (0/1)
-
-# sentiment_data = list(zip(data["review"], data["sentiment"]))
-# random.shuffle(sentiment_data)
- 
-# # 80% for training
-# train_X, train_y = zip(*sentiment_data[:20000])
- 
-# # Keep 20% for testing
-# test_X, test_y = zip(*sentiment_data[20000:])
-
-# make tags based on PennTreebank conventions
 def penn_to_wn(tag):
     """
-    Convert between the PennTreebank tags to simple Wordnet tags
+    Convert between the PennTreebank tags to simple Wordnet tags.
     """
     if tag.startswith('J'):
         return wn.ADJ
@@ -44,27 +45,13 @@ def penn_to_wn(tag):
         return wn.VERB
     return None
 
-# This is giving some text to the following function.
-# from IMDB
-# text = (data["review"][0])
 
-# expecting a return of '1'
-text = ("love love love love love love")
-
-# expecting a return of '0'
-# text = ("hate hate hate hate hate")
-
-# IMDB info has html tags in it; this cleans it
 def clean_text(text):
+    """Clean the spaces and breaks from the text."""
     text = text.replace("<br />", " ")
-    # text = text.decode("utf-8") -- I do not think I need to decode
     return text
 
-# TEST:
-# print(clean_text(text))
 
-
-# # Here is the analysis; it returns either "1" or "0"
 def swn_polarity(text):
     """
     Return a sentiment polarity: 0 = negative, 1 = positive
@@ -75,7 +62,7 @@ def swn_polarity(text):
  
     text = clean_text(text)
  
- 
+
     raw_sentences = sent_tokenize(text)
     for raw_sentence in raw_sentences:
         tagged_sentence = pos_tag(word_tokenize(raw_sentence))
@@ -111,8 +98,43 @@ def swn_polarity(text):
     # negative sentiment
     return 0    
 
-# testing functions
-# print(swn_polarity(train_X[0]), train_y[0])
+#### above here is creating the score
+#### below here is applying it to csv
 
-score = swn_polarity(text)
-print(f'This text scores {score}.')
+def create_phrase_statement(csv_filename):
+    dict = {}
+    printed_phrases = []
+
+    with open(csv_filename, "r") as f:
+        contents = csv.reader(f)
+
+        for row in contents:
+            # this way of writing a dictionary means
+            # what's on the left is the key
+            # and what's on the right is 'values'
+            dict[row[0]] = [row[1]]
+        
+        for phrase in dict:
+            clean = clean_text(phrase)
+            row_score = swn_polarity(clean)
+            dict[phrase].append(row_score)
+
+        # for phrase, metadata in (dict.items()):
+        #       print(f'A {metadata[0]} said, "{phrase}" score={metadata[1]}')    
+
+        vowels = ['a', 'e', 'i', 'o', 'u']
+        capitals = ['F','H','M','N','R','S','X']
+        for phrase, metadata in dict.items():  
+            if metadata[0:1] not in vowels and capitals:
+                a_phrase = (f'A {metadata[0]} said, "{phrase}" score={metadata[1]}')
+                printed_phrases.append(a_phrase)
+            else:
+                a_phrase = (f'An {metadata[0]} said, "{phrase}" score={metadata[1]}')
+                printed_phrases.append(a_phrase)
+
+        for n in range(randint(3, 10)):
+             print('***')
+             print(choice(printed_phrases))
+
+
+create_phrase_statement(csv_filename)

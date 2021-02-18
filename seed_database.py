@@ -1,4 +1,4 @@
-"""This file is going to be a way to save information from a csv into the database in order to seed it."""
+"""This file is takes information from a csv and adds it to the database in order to seed the database."""
 
 # pip3 freeze a requirements.txt for these imports
 import os
@@ -6,11 +6,18 @@ import json
 from random import choice, randint # double-check if I actually call this
 from datetime import date, datetime # not sure I will call 'date'; I can parse 'datetime'
 
+##
+# notes on datetime
+# >>> date_str1 = "February 18, 2021"
+# >>> format1 = "%B %d, %Y"
+# >>> date_formatted = datetime.strptime(date_str1, format1)
+##
+
 import crud
 import model
 import server
 
-os.system('dropdb phrases') # is this is the right tablename?
+os.system('dropdb phrases')
 os.system('createdb phrases')
 
 model.connect_to_db(server.app)

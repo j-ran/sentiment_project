@@ -1,5 +1,4 @@
-werespond_quotes01.csv
-werespond_quotes02.csv
+*.csv
 env*
 *.DS_Store
 *secret*

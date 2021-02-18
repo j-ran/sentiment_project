@@ -4,7 +4,7 @@ A CRUD file helps simplify the Flask route functions called in server.py. """
 # The following is defined in model.py –
 from model import db, connect_to_db, User, Interaction, Interaction_type, Phrase, Score, Sentiment
 # if you import Sentiment, it is for a backref to Score
-
+import score
 
 
 def create_user(fname, lname, email, password, consent=False):
@@ -22,7 +22,7 @@ def create_user(fname, lname, email, password, consent=False):
 def create_interaction(user, interaction_date):
     """Create and return a new interaction with the server."""
 
-    interaction = Interaction(user=users.user_id, interaction_date=interaction_date)
+    interaction = Interaction(user=interactions.user_id, interaction_date=interaction_date)
 
     db.session.add(interaction)
     db.session.commit()
@@ -57,11 +57,13 @@ def log_interaction_type(interactiontype_name):
    
 
 
-def create_phrase(phrase):
+def create_phrase_and_score(phrase):
     """Create and return a new phrase."""
 # open the csv in the seed_database.py, not here
 # pass in a phrase that is string as argument
-    new_phrase = Phrase(phrase=phrase_text)
+
+    score = score.swn_polarity(phrase)
+    new_phrase = Phrase(phrase_text=phrase, score_id=score, all the terms)
 
     db.session.add(new_phrase)
     db.session.commit()
@@ -69,10 +71,11 @@ def create_phrase(phrase):
     return new_phrase
 
 
-
+## no longer needed
 def create_score(phrase):
     """Create and return a new score for a phrase."""
 #
+    score = score.swn_polarity(phrase) # read this in from the file
     # input phrase
     # run the parts of the phrase through a function
     # that is part of spaCy library

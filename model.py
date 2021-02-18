@@ -91,7 +91,6 @@ class Interaction_type(db.Model):
 
 
 
-
 class Phrase(db.Model):
     """User input saved as Phrase."""
     
@@ -109,22 +108,22 @@ class Phrase(db.Model):
     phrase_state = db.Column(db.String(2))
     
     job_at_phrase = db.Column(db.String(20))
-    age_at_phrase = db.Column(db.Integer())
+    age_at_phrase = db.Column(db.Integer)
     phrase_text = db.Column(db.String(120))                                    
 
-    # Using three Foreign Keys and three backrefs
+    score_id = db.Column(db.Integer,
+               nullable=True) # this is nullable so that phrase can be entered before score exists
+
+    # Using two Foreign Keys and two backrefs
     interaction_id = db.Column(db.Integer, 
                      db.ForeignKey('interactions.interaction_id'))
     user_id = db.Column(db.Integer,
-              db.ForeignKey('users.user_id')) 
-    score_id = db.Column(db.Integer,
-               db.ForeignKey('scores.score_id'),
-               nullable=True) # this is nullable so that phrase can be entered before score exists             
+              db.ForeignKey('users.user_id'))              
     
     # Add a note in the referenced Class about this table
     phrase_interaction = db.relationship('Interaction', backref='phrases')
     phrase_user = db.relationship('User', backref='phrases')
-#    phrase_score = db.relationship('Score', backref='phrases')  
+### phrase_score = db.relationship('Score', backref='phrases')  
 
     def __repr__(self):
         return f'<Phrase phrase_id={self.phrase_id} phrase_text={self.phrase_text}>'
@@ -147,15 +146,14 @@ class Sentiment(db.Model):
     # still in process
     keywords = db.Column(db.String) # for tone, keywords in {keywords}, tone will be the name of ind tones 
 
-
     # scores = a property from class Score 
     # accessible through the Sentiment Class (which is this Class) 
-
 
     def __repr__(self):
         return f'<Sentiment sentiment_id={self.sentiment_id} tone={self.tone} keywords={self.keywords}>'
 
 
+## get rid of this class
 class Score(db.Model):
     """A Score for a phrase."""    
 
@@ -180,15 +178,15 @@ class Score(db.Model):
     # accessible through the Score Class (which is this Class)        
 
     def __repr__(self):
-        return f'<Score score_id={self.score_id} phrase={Phrase.phrase_text}>'
+        return f'<Score score_id={self.score_id} phrase={self.Phrase.phrase_text}>'
+
 
 
 # For testing, you will want to change the postgresql database
 # to a 'testdb' instead of 'db_uri'
-
-def connect_to_db(flask_app, db_uri='postgresql:///ratings', echo=True):
+def connect_to_db(flask_app, db_uri='postgresql:///phrases', echo=True):
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
-    flask_app.config['SQLALCHEMY_ECHO'] = True   
+    flask_app.config['SQLALCHEMY_ECHO'] = False   
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.app = flask_app
