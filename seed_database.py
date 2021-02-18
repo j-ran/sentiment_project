@@ -1,4 +1,4 @@
-"""This file is going to be a way to accept the csv and its updates so it can be passed into the project database."""
+"""This file is going to be a way to save information from a csv into the database in order to seed it."""
 
 # pip3 freeze a requirements.txt for these imports
 import os
@@ -16,7 +16,10 @@ os.system('createdb phrases')
 model.connect_to_db(server.app)
 model.db.create_all()
 
-# 
+
+csv_filepath = "werespond_quotes02.csv"
+
+
 def read_in_csv(csv_filepath):
     """Access the csv that contains the starting data and read it into the db using a function, in case the file path of the csv changes"""
 
@@ -25,9 +28,7 @@ def read_in_csv(csv_filepath):
         
 
 def make_sentence(read_in_csv): #### is it okay to use this function as an argument?        
-    # return the right data 
-    # for now, only the phrase [index 2] 
-    # and the kind of person who said it [index 3]
+    """Return a sentence that verifies the data."""
 
     dict = {}
     printed_phrases = []            
@@ -35,9 +36,12 @@ def make_sentence(read_in_csv): #### is it okay to use this function as an argum
     capitals = ['F','H','M','N','R','S','X']
 
     for row in initial_interviews:
-    # this way of writing a dictionary means
+    # This way of writing a dictionary means
     # what's on the left is 'key'
-    # and what's on the right is 'values'
+    # and what's on the right is 'values'.
+    # Return the right data – 
+    # for now, only the phrase [index 2] 
+    # and the kind of person who said it [index 3]
         dict[row[2]] = row[3]
 
     for phrase, person in dict.items():  
@@ -53,3 +57,7 @@ def make_sentence(read_in_csv): #### is it okay to use this function as an argum
         print(choice(printed_phrases))
         # NB -- need to add that as soon as a phrase is chosen
         # it cannot be chosen again             
+
+
+read_in_csv(csv_filepath)
+make_sentence(read_in_csv)        
