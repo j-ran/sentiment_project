@@ -2,16 +2,16 @@
 
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-# QUESTION: do I import my language modules here, too? Such as __ .
+
+# other possible imports:
+# pandas
+# spaCy
 
 db = SQLAlchemy()
 
 
 # Six Classes in the Model –
 # User, Interaction, Interaction_type, Phrase, Sentiment, Score
-
-# I have a few possible Inherited Classes to create ...
-# In the commments for Backrefs, is it correct what I said? Are they "ghost" references to a TABLE or to a CLASS? Are they a "list" or a "table" or an "attribute"?
 
 
 class User(db.Model):
@@ -29,10 +29,10 @@ class User(db.Model):
     consent = db.Column(db.Boolean, default=False)
 
     # TWO BACKREFS HERE –
-    # interactions = a list of Interaction objects 
+    # interactions = a property from class Interaction 
     # accessible through the User class (which is this Class)
 
-    # phrases = a list of Phrase objects 
+    # phrases = a property from class Phrase 
     # accessible through the User class (which is this Class)
 
     def __repr__(self):
@@ -49,7 +49,7 @@ class Interaction(db.Model):
     interaction_id = db.Column(db.Integer, 
                                autoincrement=True, 
                                primary_key=True)
-    interaction_date = db.Column(db.DateTime) # QUESTION - just 'Date'?
+    interaction_date = db.Column(db.DateTime)
 
     # Using two Foreign Keys and two backrefs
     interactiontype_id = db.Column(db.Integer, 
@@ -60,7 +60,7 @@ class Interaction(db.Model):
     interaction_type = db.relationship('Interaction_type', backref='interactions')  
     user = db.relationship('User', backref='interactions')
 
-    # phrases = a list of Phrase objects 
+    # phrases = a property from class Phrase 
     # accessible through the Interaction class (which is this Class)
 
     def __repr__(self):
@@ -69,7 +69,7 @@ class Interaction(db.Model):
 
 
 class Interaction_type(db.Model):
-    """A record of the type of interaction."""
+    """A record of the type of interaction using an id and a name."""
 
     __tablename__ = "interaction_types"
 
@@ -78,18 +78,15 @@ class Interaction_type(db.Model):
                                    primary_key=True)
     interactiontype_name = db.Column(db.str)
 
-    # interactions = a list of Interaction objects 
+    # interactions = a property from class Interaction 
     # accessible through the Interaction_type Class (which is this Class)
 
-    # phrases = a list of Phrase objects 
+    # phrases = a property from class Phrase 
     # accessible through the Interaction_type Class (which is this Class)
 
     def __repr__(self):
          return f'<Interaction_type interactiontype_id={self.interactiontype_id} interactiontype_name={self.interactiontype_name}>'
 
-# I BELIEVE THIS CLASS NEEDS A CHILD CLASS FOR EACH TYPE OF INTERACTION. IS THAT A GOOD IDEA?
-
-##### NO INTEGER ID, but give it a name (a unique string). -- No, actually leave it.
 
 
 
@@ -101,16 +98,16 @@ class Phrase(db.Model):
     phrase_id = db.Column(db.Integer, 
                                autoincrement=True, 
                                primary_key=True)
-    phrase_date = db.Column(db.DateTime) # QUESTION - just 'Date'?
+    phrase_date = db.Column(db.DateTime)
     
-    # the following three attributes relate to location
+    # the following three attributes relate to location –
     # I have decided to do US locations only.
     US_or_no = db.Column(db.Boolean, default=True)
     phrase_city = db.Column(db.String(20))
     phrase_state = db.Column(db.String(2))
     
     job_at_phrase = db.Column(db.String(20))
-    age_at_phrase = db.Column(db.Integer(3)) #how to specify the limits on this field? Is this correct ... does it mean the largest age =< 1000?
+    age_at_phrase = db.Column(db.Integer(3))
     phrase_text = db.Column(db.String(120))                                    
 
     # Using three Foreign Keys and three backrefs
@@ -119,8 +116,9 @@ class Phrase(db.Model):
     user_id = db.Column(db.Integer,
               db.ForeignKey('users.user_id')) 
     score_id = db.Column(db.Integer,
-               db.ForeignKey('scores.score_id'))  
-               # nullable            
+               db.ForeignKey('scores.score_id'),
+               nullable=True) # this is nullable so that phrase can be entered before score exists             
+    
     # Add a note in the referenced Class about this table
     phrase_interaction = db.relationship('Interaction', backref='phrases')
     phrase_user = db.relationship('User', backref='phrases')
@@ -139,18 +137,18 @@ class Sentiment(db.Model):
     sentiment_id = db.Column(db.Integer, 
                                autoincrement=True, 
                                primary_key=True)
-    # tone (i.e, name); not yet complete
+    # tones are from Ekman: 
+    # 'anger', 'fear', 'sadness', 'disgust', 'surprise', 'contempt', 'enjoyment'
     tone = db.Column(db.String)
     # keywords – this is either going to come from CSV or API.
     # (standford web project csv, or SentiNet API) 
-    # need to determine
-    keywords = db.Column(db.String)
-    
-    # Then ... subclasses, like 'anger', 'fear', 'joy', etc.?
-    # Each subclass has a score range, like 0-10, 11-20, etc.?
+    # still in process
+    keywords = db.Column(db.String) # for tone, keywords in {keywords}, tone will be the name of ind tones 
 
-    # scores = a list of Score objects 
+
+    # scores = a property from class Score 
     # accessible through the Sentiment Class (which is this Class) 
+
 
     def __repr__(self):
         return f'<Sentiment sentiment_id={self.sentiment_id} tone={self.tone} keywords={self.keywords}>'
@@ -167,7 +165,7 @@ class Score(db.Model):
 
     # Using two Foreign Keys, 
     # one new backref (sentiment_score)
-    # and one establshed backref (phrases)
+    # and one established backref (phrases)
     phrase_id = db.Column(db.Integer, 
                 db.ForeignKey('phrases.phrase_id'))
     sentiment_id = db.Column(db.Integer,
@@ -176,11 +174,11 @@ class Score(db.Model):
     # Backrefs  
     sentiment_score = db.relationship('Sentiment', backref='scores')
 
-    # phrases = a list of Phrase objects 
+    # phrases = a property from class Phrase 
     # accessible through the Score Class (which is this Class)        
 
     def __repr__(self):
-        return f'<Score score_id={self.score_id}>'
+        return f'<Score score_id={self.score_id} phrase={Phrase.phrase_text}>'
 
 
 # For testing, you will want to change the postgresql database

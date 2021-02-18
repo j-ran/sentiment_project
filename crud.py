@@ -6,9 +6,9 @@ from model import db, connect_to_db,
                   User, 
                   Interaction, 
                   Interaction_type, 
-                  Phrase, 
-                  Sentiment, 
+                  Phrase,  
                   Score
+                  # if you import Sentiment, it is for a backref to Score
 
 
 
@@ -23,27 +23,34 @@ def create_user(fname, lname, email, password, consent=False):
     return user
 
 
+
 def create_interaction(user, interaction_date):
     """Create and return a new interaction with the server."""
-# How to identify the user – with user_id? Do I list that as passed in?
-# QUESTION: Can I auto-log interaction date without passing it in as "interaction_date"?
-# not really sure from how to get this info ...
+
     interaction = Interaction(user=users.user_id, interaction_date=interaction_date)
+
     db.session.add(interaction)
     db.session.commit()
 
     return interaction
 
 
+
 def log_interaction_type(interactiontype_name):
     """Create and return a new entry in the server interaction log."""
 
-    interactiontype = Interaction_type(interactiontype_name=interactiontype_name)
-# I want to make four interaction types ONLY. How do I do this?
-# I think they are Booleans.
-# signup; login; phrase_added; seed_interview_J; seed_interview_K  
+    interaction_type = Interaction_type(interactiontype_name=interactiontype_name)
 
-#####
+    # Hypothesis on how to handle:
+    # via Headers (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
+        # Can track GET and POST and NEITHER.
+        # GET can see if User GETs the final return of a display
+        # POST can see if User logs in or sign up
+        # POST can see if User enters a new phrase
+        # Neither checks if the server has been queried ... ?
+            # can see if the site is loaded without entering anything
+ 
+###### NOTES FROM THU
 # will need to look at headers and see what is returned in the request body
 # find which header matches with which activity
 # login, logout, posting a phrase, viewing phrase (get)
@@ -54,21 +61,45 @@ def log_interaction_type(interactiontype_name):
     return interaction_type
    
 
-def create_phrase(pass in a phrase from my current .csv)
+
+def create_phrase(phrase):
     """Create and return a new phrase."""
 # open the csv in the seeddatabase.py, not here
 # pass in a phrase that is string as argument
+    new_phrase = Phrase(phrase=phrase_text)
+
+    db.session.add(new_phrase)
+    db.session.commit()
+
+    return new_phrase
 
 
-def create_sentiment(...)
-    """Create and return a new sentiment."""
-# I don't think this is right ...
-# no, do it in seeddatbase -- tone and keywords
 
-
-def create_score(all the arguments needed for a score, including a Sentiment class)
+def create_score(phrase):
     """Create and return a new score for a phrase."""
 #
+    # input phrase
+    # run the parts of the phrase through a function
+    # that is part of spaCy library
+    # return score
+
+    new_score = Score(phrase=phrase_text)
+    
+    # 'analyze_text_with_syntax_and_weight' function from spaCy
+    # return an Integer
+    # assign to variable 'new_score'
+
+    db.session.add(new_score)
+    db.session.commit()
+
+    return new_score
+
+
+
+# def create_sentiment(tone)
+#     """Create and return a new sentiment."""
+## This is done in seed_database with tone and keywords, not here
+
 
 
 # Copy-paste this into crud.py each time, too – 

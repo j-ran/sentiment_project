@@ -54,7 +54,9 @@ def create_phrase_statement(csv_filename):
 
         for n in range(randint(3, 10)):
              print('\n******')
-             print(choice(printed_phrases))        
+             print(choice(printed_phrases))
+             # NB -- need to add that as soon as a phrase is chosen
+             # it cannot be chosen again         
         # -- end v.3  
 
 
