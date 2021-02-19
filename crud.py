@@ -2,13 +2,13 @@
 A CRUD file helps simplify the Flask route functions called in server.py. """
 
 # The following is defined in model.py –
-from model import db, connect_to_db, User, Interaction, Interaction_type, Phrase
+from model import db, connect_to_db, User, Interaction, Interaction_type, Phrase, Sentiment
 from score import swn_polarity
 
 
 # working on 19 Feb 2021
 def create_user(fname, lname, email, password, consent=False):
-    """Create and return a new user."""
+    """Create and return a new User object."""
 
     user = User(fname=fname, lname=lname, email=email, password=password, consent=False) # is consent default value added here as well as in arguments?
 
@@ -20,7 +20,7 @@ def create_user(fname, lname, email, password, consent=False):
 
 # this one does not work yet; leaving it for now – 19 Feb 2021
 def create_interaction(user, interaction_date):
-    """Create and return a new interaction with the server."""
+    """Create and return a new Interaction object – this is an interaction with the server."""
 
     interaction = Interaction(user=interactions.user_id, interaction_date=interaction_date)
 
@@ -32,7 +32,8 @@ def create_interaction(user, interaction_date):
 
 # working in current form on 19 Feb 2021
 def log_interaction_type(interactiontype_name):
-    """Create and return a new entry in the server interaction log."""
+    """Create and return a new Interaction_type object, 
+       which is a new entry in the server interaction log."""
 
     interaction_type = Interaction_type(interactiontype_name=interactiontype_name)
 
@@ -58,7 +59,7 @@ def log_interaction_type(interactiontype_name):
 
 # working on 19 Feb 2021
 def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phrase, age_at_phrase, phrase_text, US_or_no=True):
-    """Create and return a new phrase with its score."""
+    """Create and return a new Phrase, which also includes a '0' or '1' score."""
 # open the csv in the seed_database.py, not here
 # pass in a phrase that is string as argument
 
@@ -74,7 +75,16 @@ def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phras
     return new_phrase_and_score
 
 
-# create Sentiment
+# working on 19 Feb 2021
+def create_sentiment(tone):
+    """Create and return a new Sentiment object."""
+
+    sentiment = Sentiment(tone=tone)
+
+    db.session.add(sentiment)
+    db.session.commit()
+
+    return sentiment
 
 
 # Copy-paste this into crud.py each time, too – 
