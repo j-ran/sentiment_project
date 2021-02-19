@@ -1,4 +1,4 @@
-"""Server for We Keep Noticing app."""
+"""Server for sentiment-parsing app."""
 
 from flask import (Flask, render_template, request, flash, session,
                    redirect)

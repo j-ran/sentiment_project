@@ -9,3 +9,4 @@ __pycache__/
 writing_*
 model0*.py
 requirements_*.txt
+seed_database_*.py

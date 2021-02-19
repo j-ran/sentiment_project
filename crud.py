@@ -17,6 +17,11 @@ def create_user(fname, lname, email, password, consent=False):
 
     return user
 
+def get_user_by_email(email):
+    """Returns unique emails, i.e. the first occurence of any email."""
+    user = User.query.filter_by(email=email).first()
+    return user
+
 
 # this one does not work yet; leaving it for now – 19 Feb 2021
 def create_interaction(user, interaction_date):

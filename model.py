@@ -19,9 +19,9 @@ class User(db.Model):
     user_id = db.Column(db.Integer,
                         autoincrement=True,
                         primary_key=True)
-    fname = db.Column(db.String(15))
-    lname = db.Column(db.String(15))
-    email = db.Column(db.String(50), unique=True)
+    fname = db.Column(db.String(30))
+    lname = db.Column(db.String(30))
+    email = db.Column(db.String(50), unique=True, nullable=True)
     password = db.Column(db.String(30))
     consent = db.Column(db.Boolean, default=False)
 
@@ -99,7 +99,7 @@ class Phrase(db.Model):
     
     # the following three attributes relate to location –
     US_or_no = db.Column(db.Boolean, default=True)
-    phrase_city = db.Column(db.String(20))
+    phrase_city = db.Column(db.String(30))
     phrase_state = db.Column(db.String(2))
     
     job_at_phrase = db.Column(db.String(20))
