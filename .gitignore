@@ -7,3 +7,5 @@ __pycache__/
 *in-progress*
 *.psd
 writing_*
+model0*.py
+requirements_*.txt

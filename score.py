@@ -136,5 +136,6 @@ def create_phrase_statement(csv_filename):
              print('***')
              print(choice(printed_phrases))
 
-
-create_phrase_statement(csv_filename)
+# -- comment this out so function does not print 
+# -- when you call crud.py from model.py to start the phrases db 
+# create_phrase_statement(csv_filename)

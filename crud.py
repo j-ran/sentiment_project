@@ -2,11 +2,11 @@
 A CRUD file helps simplify the Flask route functions called in server.py. """
 
 # The following is defined in model.py –
-from model import db, connect_to_db, User, Interaction, Interaction_type, Phrase, Score, Sentiment
-# if you import Sentiment, it is for a backref to Score
-import score
+from model import db, connect_to_db, User, Interaction, Interaction_type, Phrase
+from score import swn_polarity
 
 
+# working on 19 Feb 2021
 def create_user(fname, lname, email, password, consent=False):
     """Create and return a new user."""
 
@@ -18,7 +18,7 @@ def create_user(fname, lname, email, password, consent=False):
     return user
 
 
-
+# this one does not work yet; leaving it for now – 19 Feb 2021
 def create_interaction(user, interaction_date):
     """Create and return a new interaction with the server."""
 
@@ -30,7 +30,7 @@ def create_interaction(user, interaction_date):
     return interaction
 
 
-
+# working in current form on 19 Feb 2021
 def log_interaction_type(interactiontype_name):
     """Create and return a new entry in the server interaction log."""
 
@@ -54,50 +54,27 @@ def log_interaction_type(interactiontype_name):
     db.session.commit()
 
     return interaction_type
-   
 
 
-def create_phrase_and_score(phrase):
-    """Create and return a new phrase."""
+# working on 19 Feb 2021
+def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phrase, age_at_phrase, phrase_text, US_or_no=True):
+    """Create and return a new phrase with its score."""
 # open the csv in the seed_database.py, not here
 # pass in a phrase that is string as argument
 
-    score = score.swn_polarity(phrase)
-    new_phrase = Phrase(phrase_text=phrase, score_id=score, all the terms)
+    polar_score = swn_polarity(phrase_text)
+    # test that the above works; it does 
+    # print(f'Score is {polar_score}.')
+    # variable name from model.py in class Phrase = variable name used in this funct
+    new_phrase_and_score = Phrase(phrase_date=phrase_date, US_or_no=True, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, polar_score=polar_score)
 
-    db.session.add(new_phrase)
+    db.session.add(new_phrase_and_score)
     db.session.commit()
 
-    return new_phrase
+    return new_phrase_and_score
 
 
-## no longer needed
-def create_score(phrase):
-    """Create and return a new score for a phrase."""
-#
-    score = score.swn_polarity(phrase) # read this in from the file
-    # input phrase
-    # run the parts of the phrase through a function
-    # that is part of spaCy library
-    # return score
-
-    new_score = Score(phrase=phrase_text)
-    
-    # 'analyze_text_with_syntax_and_weight' function from spaCy
-    # return an Integer
-    # assign to variable 'new_score'
-
-    db.session.add(new_score)
-    db.session.commit()
-
-    return new_score
-
-
-
-# def create_sentiment(tone)
-#     """Create and return a new sentiment."""
-## This is done in seed_database with tone and keywords, not here
-
+# create Sentiment
 
 
 # Copy-paste this into crud.py each time, too – 

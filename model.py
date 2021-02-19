@@ -3,17 +3,12 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-# other possible imports:
-# pandas
-# spaCy
-
 db = SQLAlchemy()
 # NB – SQLAlchemy is creating a database out of the commands in this file.
 
 
-
-# Six Classes in the Model –
-# User, Interaction, Interaction_type, Phrase, Sentiment, Score
+# Five Classes in the Model –
+# User, Interaction, Interaction_type, Phrase, Sentiment
 
 
 class User(db.Model):
@@ -99,10 +94,10 @@ class Phrase(db.Model):
     phrase_id = db.Column(db.Integer, 
                                autoincrement=True, 
                                primary_key=True)
+    # datetime is form %Y-%m-%d – ex. '2021-02-18' incl quotes                         
     phrase_date = db.Column(db.DateTime)
     
     # the following three attributes relate to location –
-    # I have decided to do US locations only.
     US_or_no = db.Column(db.Boolean, default=True)
     phrase_city = db.Column(db.String(20))
     phrase_state = db.Column(db.String(2))
@@ -111,8 +106,8 @@ class Phrase(db.Model):
     age_at_phrase = db.Column(db.Integer)
     phrase_text = db.Column(db.String(120))                                    
 
-    score_id = db.Column(db.Integer,
-               nullable=True) # this is nullable so that phrase can be entered before score exists
+    polar_score = db.Column(db.Integer,
+                            nullable=True) # this is nullable so that phrase can be entered before score exists
 
     # Using two Foreign Keys and two backrefs
     interaction_id = db.Column(db.Integer, 
@@ -123,7 +118,6 @@ class Phrase(db.Model):
     # Add a note in the referenced Class about this table
     phrase_interaction = db.relationship('Interaction', backref='phrases')
     phrase_user = db.relationship('User', backref='phrases')
-### phrase_score = db.relationship('Score', backref='phrases')  
 
     def __repr__(self):
         return f'<Phrase phrase_id={self.phrase_id} phrase_text={self.phrase_text}>'
@@ -138,47 +132,12 @@ class Sentiment(db.Model):
     sentiment_id = db.Column(db.Integer, 
                                autoincrement=True, 
                                primary_key=True)
-    # tones are from Ekman: 
-    # 'anger', 'fear', 'sadness', 'disgust', 'surprise', 'contempt', 'enjoyment'
+    # tones will be from Ekman; on 18 Feb 2021 just '0' and '1'
+    # Ekman: 'anger', 'fear', 'sadness', 'disgust', 'surprise', 'contempt', 'enjoyment'
     tone = db.Column(db.String)
-    # keywords – this is either going to come from CSV or API.
-    # (standford web project csv, or SentiNet API) 
-    # still in process
-    keywords = db.Column(db.String) # for tone, keywords in {keywords}, tone will be the name of ind tones 
-
-    # scores = a property from class Score 
-    # accessible through the Sentiment Class (which is this Class) 
 
     def __repr__(self):
         return f'<Sentiment sentiment_id={self.sentiment_id} tone={self.tone} keywords={self.keywords}>'
-
-
-## get rid of this class
-class Score(db.Model):
-    """A Score for a phrase."""    
-
-    __tablename__ = "scores"
-
-    score_id = db.Column(db.Integer, 
-                         autoincrement=True, 
-                         primary_key=True)
-
-    # Using two Foreign Keys, 
-    # one new backref (sentiment_score)
-    # and one established backref (phrases)
-    phrase_id = db.Column(db.Integer, 
-                db.ForeignKey('phrases.phrase_id'))
-    sentiment_id = db.Column(db.Integer,
-                   db.ForeignKey('sentiments.sentiment_id')) 
-    
-    # Backrefs  
-    sentiment_score = db.relationship('Sentiment', backref='scores')
-
-    # phrases = a property from class Phrase 
-    # accessible through the Score Class (which is this Class)        
-
-    def __repr__(self):
-        return f'<Score score_id={self.score_id} phrase={self.Phrase.phrase_text}>'
 
 
 
