@@ -104,7 +104,7 @@ class Phrase(db.Model):
     
     job_at_phrase = db.Column(db.String(20))
     age_at_phrase = db.Column(db.Integer)
-    phrase_text = db.Column(db.String(120))                                    
+    phrase_text = db.Column(db.String(150))                                    
 
     polar_score = db.Column(db.Integer,
                             nullable=True) # this is nullable so that phrase can be entered before score exists
