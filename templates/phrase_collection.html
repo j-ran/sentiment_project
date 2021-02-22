@@ -8,11 +8,11 @@
 
   <div>
     {% for phrase in phrases %}
-      <p> What did {{ a_or_an }}  
-        <a href="/phrases/{{ phrase.phrase_id }}">
-            {{phrase.job_at_phrase}}</a>
+      <p> What did {{ phrase[0] }}  
+        <a href="/phrases/{{phrase[3]}}">
+            {{phrase[1]}}</a>
             say?"
-      </p
+        </p>
     {% endfor %}
   </div>
 {% endblock %}
