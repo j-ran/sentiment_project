@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
-{% block title %}Phrase Collection (all phrases){% endblock %}
+{% block title %}Phrase Collection{% endblock %}
 
 
 {% block body %}
   <h1>How People Been Feeling and what they have been thinking.</h1>
 
-  <ul>
+  <div>
     {% for phrase in phrases %}
-      <li>
+      <p> {{ a_or_an }}  
         <a href="/phrases/{{ phrase.phrase_id }}">
-          {{ phrase.phrase_text }}
-        </a>
-      </li>
+            {{phrase.job_at_phrase}}</a>
+            said, "{{ phrase.phrase_text }}"
+      </p
     {% endfor %}
-  </ul>
+  </div>
 {% endblock %}

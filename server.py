@@ -22,13 +22,21 @@ def homepage():
 
 
 @app.route('/phrases')
-def all_phrases():
+def see_phrases():
     """View the phrase collection."""
 
-    #phrase_collection = crud.get_phrase_collection()
+    #NB: all phrases are
+    # phrase_collection = crud.get_phrase_collection()
     a_few_phrases = crud.get_a_few_phrases()
-
-    return render_template('phrase_collection.html', phrases=a_few_phrases)
+    for each_phrase in a_few_phrases:
+        a_or_an = crud.get_a_or_an(each_phrase.job_at_phrase) # not working currently
+                                                              # the last 'a_or_an' is applied to all phrases
+        
+    return render_template('phrase_collection.html', 
+                            phrases=a_few_phrases,
+                            a_or_an=a_or_an) # What is this in English?
+                                                # on the left is the var on the html page, in Jinja
+                                                # on the right is what that same var is called here
 
 
 # @app.route('/movies/<movie_id>')

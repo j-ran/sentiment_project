@@ -84,13 +84,11 @@ def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phras
     return new_phrase_and_score
 
 
-
 def get_phrase_collection():
     """Return entire phrase collection."""
 
     #return Phrase.query.all()
     return Phrase.query.all()
-
 
 
 def get_a_few_phrases():
@@ -106,6 +104,24 @@ def get_a_few_phrases():
         else:
             continue    
     return random_phrases
+
+
+def get_a_or_an(job):
+    """Use 'a' or 'an' before a job title."""
+    
+    vowels = ['a', 'e', 'i', 'o', 'u']
+    capitals = ['F','H','M','N','R','S','X']
+    
+    job_object = Phrase.query.filter_by(job_at_phrase=job).first()
+    job = job_object.job_at_phrase
+
+    if (job[0]) in vowels:
+        return 'An'
+    elif (job[0]) in capitals: # I am not certain this line works
+        return 'An'
+    else:
+        return 'A'
+
 
 
 # working on 19 Feb 2021
