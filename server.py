@@ -5,27 +5,30 @@ from flask import (Flask, render_template, request, flash, session,
 from model import connect_to_db
 import crud
 
-# from jinja2 import StrictUndefined
+# this import causes Jinja to show errors for undefined variables
+# otherwise Jinja is silent on undefined variables
+from jinja2 import StrictUndefined
 
 app = Flask(__name__)
 app.secret_key = "123"
-#app.jinja_env.undefined = StrictUndefined
+app.jinja_env.undefined = StrictUndefined
 
 
-# @app.route('/')
-# def homepage():
-#     """View homepage."""
+@app.route('/')
+def homepage():
+    """View homepage."""
 
-#     return render_template('homepage.html')
+    return render_template('homepage.html')
 
 
-# @app.route('/movies')
-# def all_movies():
-#     """View all movies."""
+@app.route('/phrases')
+def all_phrases():
+    """View the phrase collection."""
 
-#     movies = crud.get_movies()
+    #phrase_collection = crud.get_phrase_collection()
+    a_few_phrases = crud.get_a_few_phrases()
 
-#     return render_template('all_movies.html', movies=movies)
+    return render_template('phrase_collection.html', phrases=a_few_phrases)
 
 
 # @app.route('/movies/<movie_id>')

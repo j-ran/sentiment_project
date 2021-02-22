@@ -6,7 +6,7 @@ from model import db, connect_to_db, User, Phrase, Sentiment #Interaction, Inter
 from score import swn_polarity
 
 from datetime import datetime
-
+from random import choice, randint
 
 # working as of 19 Feb 2021
 def create_user(fname, lname, email, password, consent=False):
@@ -82,6 +82,27 @@ def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phras
     db.session.commit()
 
     return new_phrase_and_score
+
+
+
+def get_phrase_collection():
+    """Return entire phrase collection."""
+
+    #return Phrase.query.all()
+    return Phrase.query.all()
+
+
+
+def get_a_few_phrases():
+    """Return a random selection of 4 to 10 phrases."""
+    
+    random_phrases = []
+    
+    for n in range(randint(4, 10)):
+        random_int = randint(1, len(Phrase.query.all()))    
+        random_phrase = Phrase.query.filter_by(phrase_id=random_int).one()
+        random_phrases.append(random_phrase)
+    return random_phrases
 
 
 # working on 19 Feb 2021
