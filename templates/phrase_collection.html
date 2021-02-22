@@ -3,14 +3,15 @@
 
 
 {% block body %}
-  <h1>How People Been Feeling and what they have been thinking.</h1>
+  <h1>How People Have Been Feeling <br>
+      and what they have been thinking.</h1>
 
   <div>
     {% for phrase in phrases %}
-      <p> {{ a_or_an }}  
+      <p> What did {{ a_or_an }}  
         <a href="/phrases/{{ phrase.phrase_id }}">
             {{phrase.job_at_phrase}}</a>
-            said, "{{ phrase.phrase_text }}"
+            say?"
       </p
     {% endfor %}
   </div>

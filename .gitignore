@@ -8,5 +8,6 @@ __pycache__/
 *.psd
 writing_*
 model0*.py
-requirements_*.txt
+requirements*.txt
 seed_database_*.py
+article_rules.py

@@ -84,6 +84,14 @@ def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phras
     return new_phrase_and_score
 
 
+def get_phrase_by_phrase_id(phrase_id):
+    """Returns a particular phrase."""
+    phrase = Phrase.query.filter_by(phrase_id=phrase_id).first()
+    # How to write this with get? –
+    # phrase = Phrase.query.get(phrase_id).(1) 
+    return phrase
+
+
 def get_phrase_collection():
     """Return entire phrase collection."""
 

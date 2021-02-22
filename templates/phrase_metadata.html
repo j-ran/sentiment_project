@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}the {{ phrase.job_at_phrase }}'s phrase –{% endblock %}
+
+{% block body %}
+<h1>{{ phrase.phrase_text }}</h1>
+
+<p>
+  This was from a {{phrase.age_at_phrase}}-yr old {{phrase.job_at_phrase}} in {{ phrase.phrase_city }}, {{ phrase.phrase_state }}.
+</p>
+
+<img src="../static/map_w_quotes.png" width="37%">
+{% endblock %}

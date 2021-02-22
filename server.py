@@ -29,7 +29,8 @@ def see_phrases():
     # phrase_collection = crud.get_phrase_collection()
     a_few_phrases = crud.get_a_few_phrases()
     for each_phrase in a_few_phrases:
-        a_or_an = crud.get_a_or_an(each_phrase.job_at_phrase) # not working currently
+        a_or_an = crud.get_a_or_an(each_phrase.job_at_phrase)
+         # not working currently
                                                               # the last 'a_or_an' is applied to all phrases
         
     return render_template('phrase_collection.html', 
@@ -39,13 +40,13 @@ def see_phrases():
                                                 # on the right is what that same var is called here
 
 
-# @app.route('/movies/<movie_id>')
-# def show_movie(movie_id):
-#     """Show details on a particular movie."""
+@app.route('/phrases/<phrase_id>')
+def show_metadata(phrase_id):
+    """Show metadata for a particular phrase."""
 
-#     movie = crud.get_movie_by_id(movie_id)
+    phrase = crud.get_phrase_by_phrase_id(phrase_id)
 
-#     return render_template('movie_details.html', movie=movie)
+    return render_template('phrase_metadata.html', phrase=phrase)
 
 
 # @app.route('/users')
