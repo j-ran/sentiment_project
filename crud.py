@@ -97,11 +97,14 @@ def get_a_few_phrases():
     """Return a random selection of 4 to 10 phrases."""
     
     random_phrases = []
-    
+
     for n in range(randint(4, 10)):
         random_int = randint(1, len(Phrase.query.all()))    
         random_phrase = Phrase.query.filter_by(phrase_id=random_int).one()
-        random_phrases.append(random_phrase)
+        if random_phrase not in random_phrases:
+            random_phrases.append(random_phrase)
+        else:
+            continue    
     return random_phrases
 
 
