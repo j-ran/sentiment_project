@@ -3,7 +3,7 @@
 from flask import (Flask, render_template, request, flash, session, redirect)
 from model import connect_to_db
 import crud
-
+from datetime import datetime
 # this import causes Jinja to show errors for undefined variables
 # otherwise Jinja is silent on undefined variables
 from jinja2 import StrictUndefined
@@ -39,6 +39,10 @@ def show_metadata(phrase_id):
     return render_template('phrase_metadata.html', phrase=phrase)
 
 
+@app.route('/create_account')
+def render_registration():
+    return render_template('login.html')
+
 @app.route('/create_account', methods=['POST'])
 def create_account():
     """Create a new user account."""
@@ -60,6 +64,10 @@ def create_account():
         return render_template('login.html', user=user) ### SHOULD thiS BE user=session[user_id]                      
 
 
+@app.route('/login')
+def render_login():
+    return render_template('login.html')
+
 @app.route('/login', methods=['POST'])
 def login_user():
     """Log in an existing user with email and password."""
@@ -77,8 +85,8 @@ def login_user():
         if password == user.password: 
             flash(f'Thank you. You are being logged in.')
         # add user to session 
-            session['user_id'] = user ### Is this user.user_id?
-            return render_template('user_phrases.html')
+            session['user_id'] = user.user_id 
+            return redirect('/see_user_phrase_collection')
         
         # if password doesn't match email
         else:
@@ -89,8 +97,11 @@ def login_user():
         flash(f'There is no record of the email "{email}." Please create an account.')
     
     
-    return render_template('login.html', user=user)                     
+    return redirect('/')                     
 
+@app.route('/create_new_phrase')
+def render_phrase_form():
+    return render_template('add_new_phrase.html')
 
 @app.route('/create_new_phrase', methods=['POST'])
 def create_new_phrase():
@@ -102,12 +113,14 @@ def create_new_phrase():
 
     return redirect('/', phrase_text=phrase_text)
 
+
+# do not have to separate
 @app.route('/create_phrase_metadata', methods=['POST'])
 def create_phrase_metadata():
     """Create the metadata for a new phrase."""
 
     # take in the following:
-    phrase_date='20210223' # -- THIS IS DATETIME.DATETIME.NOW, in an acceptable form
+    phrase_date=str(datetime.now().year) + str(datetime.now().month) + str(datetime.now().day)
     US_or_no=True 
     # phrase_city=phrase_city 
     phrase_city = request.form.get('phrase_city')
@@ -123,13 +136,22 @@ def create_phrase_metadata():
     return redirect('/', phrase_and_score=phrase_and_score)
 
 
-@app.route('/see_user_phrase_collection', methods=['POST'])
+@app.route('/see_user_phrase_collection')
 def see_user_phrase_collection():
     """View all of the phrases of the user in session."""
-
-    return render_template(user_phrase_collection.html)
+    # check if user_id is in session
+    # if in session, get all phrase.query.filter_by(user_id.)
+    if 'user_id' in session:
+        user_id = session['user_id']
+        phrases = crud.get_phrase_by_user_id(user_id)
+        return render_template('user_phrases.html', phrases=phrases)
+    
+    else:
+        return redirect('/')
     
 
+
+# phrases = Phrase.query.filter_by(user_id=user.id).all()
 ##### SOME EXTRA STUFF
 # @app.route('/login')
 # def login():    

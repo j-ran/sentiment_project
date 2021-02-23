@@ -7,7 +7,11 @@
 
 <a href="/see_user_phrase_collection"></a>
 <p>
-  Phrase 1
+    
+  {% for phrase in phrases %}
+    {{ phrase }}
+  {% endfor %}  
+
 </p>
 
 <p>
