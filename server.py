@@ -3,7 +3,11 @@
 from flask import (Flask, render_template, request, flash, session, redirect)
 from model import connect_to_db
 import crud
+
+# datetime is used to assign the date of "date of submission" 
+# for newly created phrases
 from datetime import datetime
+
 # this import causes Jinja to show errors for undefined variables
 # otherwise Jinja is silent on undefined variables
 from jinja2 import StrictUndefined
@@ -13,8 +17,9 @@ app.secret_key = "123"
 app.jinja_env.undefined = StrictUndefined
 
 
+#### --- HOMEPAGE --- ####
 @app.route('/')
-def see_phrases_homepage():
+def show_phrases_homepage():
     """View homepage, which is also a phrase collection."""
 
     phrases = []
@@ -39,9 +44,12 @@ def show_metadata(phrase_id):
     return render_template('phrase_metadata.html', phrase=phrase)
 
 
+#### --- LOGIN --- ####
 @app.route('/create_account')
-def render_registration():
+def show_login_page():
+    """Display the html where the 'login' and 'create_account' forms are."""
     return render_template('login.html')
+
 
 @app.route('/create_account', methods=['POST'])
 def create_account():
@@ -59,14 +67,15 @@ def create_account():
     else:
         password = request.form.get('password')
         user = crud.create_user(fname=fname, lname=lname, email=email, password=password, consent=False)
-        session['user_id'] = user ### Is this user.user_id?
+        session['user_id'] = user.user_id
         flash('Account created! Please log in.')
-        return render_template('login.html', user=user) ### SHOULD thiS BE user=session[user_id]                      
+        return render_template('login.html', user=user) ### SHOULD THIS BE user=session[user_id]                      
 
 
 @app.route('/login')
 def render_login():
     return render_template('login.html')
+
 
 @app.route('/login', methods=['POST'])
 def login_user():
@@ -83,7 +92,7 @@ def login_user():
     if user:
         # and if the password is correct:
         if password == user.password: 
-            flash(f'Thank you. You are being logged in.')
+            flash(f'You are logged in.')
         # add user to session 
             session['user_id'] = user.user_id 
             return redirect('/see_user_phrase_collection')
@@ -95,29 +104,33 @@ def login_user():
 
     else:
         flash(f'There is no record of the email "{email}." Please create an account.')
+        #return render_template('login.html')
     
-    
-    return redirect('/')                     
+    #return redirect('/') 
+    return render_template('login.html')                    
 
+
+#### --- MAKE A NEW PHRASE --- ####
 @app.route('/create_new_phrase')
 def render_phrase_form():
+    """Display the html for the 'create_new_phrase' form."""
     return render_template('add_new_phrase.html')
+
 
 @app.route('/create_new_phrase', methods=['POST'])
 def create_new_phrase():
-    """Create a 140 char phrase."""
+    """Create a 140 char phrase with metadata."""
 
     # get phrase from form
     phrase_text = request.form.get('phrase_text')
-    flash(f'WHAT A PHRASE! In order to add it to the database, we need to be able to display the following fields. \nBy filling out and submitting these fields, you agree for us to use your phrase. Thank you!')
+    flash(f'WHAT A PHRASE! To see it with other phrases, go back to the homepage. Thank you!')
 
-    return redirect('/', phrase_text=phrase_text)
+    #return render_template('add_new_phrase.html', phrase_text=phrase_text)
+    #return redirect('/', phrase_text=phrase_text) # probably this will go to a display page of phrases ...
+                                                  # for now, it goes to homepage
 
-
-# do not have to separate
-@app.route('/create_phrase_metadata', methods=['POST'])
-def create_phrase_metadata():
-    """Create the metadata for a new phrase."""
+# def create_phrase_metadata():
+#     """Create the metadata for a new phrase."""
 
     # take in the following:
     phrase_date=str(datetime.now().year) + str(datetime.now().month) + str(datetime.now().day)
@@ -131,24 +144,29 @@ def create_phrase_metadata():
     # age_at_phrase=age_at_phrase,
     age_at_phrase = request.form.get('age_at_phrase') 
 
-    phrase_and_score = create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, US_or_no=US_or_no)
+    phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, US_or_no=US_or_no)
 
-    return redirect('/', phrase_and_score=phrase_and_score)
+    #return render_template('add_new_phrase.html', phrase_and_score=phrase_and_score)
+    return render_template('login.html', phrase_and_score=phrase_and_score)
 
 
+#### --- DISPLAY USER-SPECIFIC PHRASES --- ####
 @app.route('/see_user_phrase_collection')
 def see_user_phrase_collection():
     """View all of the phrases of the user in session."""
     # check if user_id is in session
-    # if in session, get all phrase.query.filter_by(user_id.)
+    # if in session, get all phrases from CRUD function
     if 'user_id' in session:
+        
         user_id = session['user_id']
         phrases = crud.get_phrase_by_user_id(user_id)
+        print('********', phrases)
         return render_template('user_phrases.html', phrases=phrases)
     
     else:
         return redirect('/')
     
+
 
 
 # phrases = Phrase.query.filter_by(user_id=user.id).all()
@@ -165,8 +183,6 @@ def see_user_phrase_collection():
     #     return redirect("/top-melons")
     # else:
     #     return render_template("homepage.html")
-
-
 
 
 if __name__ == '__main__':
