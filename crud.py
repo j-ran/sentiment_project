@@ -19,6 +19,7 @@ def create_user(fname, lname, email, password, consent=False):
 
     return user
 
+
 def get_user_by_email(email):
     """Returns unique emails, i.e. the first occurence of any email."""
     user = User.query.filter_by(email=email).first()
@@ -65,7 +66,7 @@ def log_interaction_type(interactiontype_name):
 
 
 # working on 19 Feb 2021
-def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phrase, age_at_phrase, phrase_text, US_or_no=True):
+def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phrase, age_at_phrase, phrase_text, user_id, US_or_no=True):
     """Create and return a new Phrase, which also includes a '0' or '1' score."""
 # open the csv in the seed_database.py, not here
 # pass in a phrase that is string as argument
@@ -76,7 +77,7 @@ def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phras
     # print(f'Score is {polar_score}.')
 
     # variable name from model.py in class Phrase = variable name used in this funct
-    new_phrase_and_score = Phrase(phrase_date=phrase_date, US_or_no=True, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, polar_score=polar_score)
+    new_phrase_and_score = Phrase(phrase_date=phrase_date, US_or_no=True, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, polar_score=polar_score, user_id=user_id)
 
     db.session.add(new_phrase_and_score)
     db.session.commit()
@@ -97,10 +98,9 @@ def get_phrase_by_user_id(user_id):
     phrases = Phrase.query.filter_by(user_id=user_id).all()
     return phrases
 
-    
+
 def get_phrase_collection():
     """Return entire phrase collection."""
-
     #return Phrase.query.all()
     return Phrase.query.all()
 

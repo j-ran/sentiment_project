@@ -70,7 +70,6 @@ df.to_sql(
 
 
 #### clean dataframe and run crud functions to seed db ####
-
 row_count = (df.shape[0]) # df.shape shows the number of rows
 for row in range(row_count):
     # make a new user out of the rows of the csv
@@ -80,9 +79,10 @@ for row in range(row_count):
     email = str(df.loc[row, 'email'])
     # use crud function to ensure user is unique and has an email before adding
     user = crud.get_user_by_email(email) 
-    if not user and email != 'nan':    
-        crud.create_user(fname, lname, email, password='***', consent=True)
-
+    if not user:    
+        user = crud.create_user(fname, lname, email, password='***', consent=True)
+    if email == 'nan':
+        continue
     # make a new phrase out of the rows of the csv
     #### get, reformat, and return the date ####
     phrase_date = (df.loc[row, 'phrase_date'])
@@ -118,4 +118,4 @@ for row in range(row_count):
     phrase_text = (df.loc[row, 'phrase_text'])
 
     # score the phrase and add to db
-    crud.create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phrase, age_at_phrase, phrase_text, US_or_no=True)
+    crud.create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phrase, age_at_phrase, phrase_text, user.user_id, US_or_no=True)
