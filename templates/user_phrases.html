@@ -7,19 +7,15 @@
 
 <a href="/see_user_phrase_collection"></a>
 <p>
-    
+
   {% for phrase in phrases %}
-    {{ phrase }}
+    {{ phrase.phrase_text }}<br>
   {% endfor %}  
 
 </p>
 
 <p>
-    Phrase 2
-  </p>
-
-  <p>
-    Phrase 3
+    <br><br>If someone is logged in, there should be phrases displayed above.
   </p>
 
 {% endblock %}

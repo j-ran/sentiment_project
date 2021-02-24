@@ -6,30 +6,28 @@
   
   <form action="/create_new_phrase" method="POST">
     <p>
-      What have you noticed lately that you hadn’t noticed before? (max 140 characters) <input type="text" maxlength="140" name="phrase_text">
+      What have you noticed lately that you hadn’t noticed before? (max 140 characters) <input type="text" maxlength="140" name="phrase_text" required>
       </p>
-    </form>    
+       
 
     
     <p> For your phrase to be added, please fill out the following fields. 
       </p>
 
-      
-    <form action="/create_phrase_metadata" method="POST">
         <p>
-        Current Job or Role (max 20 characters)<input type="text" maxlength="3" name="job_at_phrase">
+        Current Job or Role (max 20 characters)<input type="text" maxlength="20" name="job_at_phrase" required>
         </p>
             <p>
-            Age (your actual age, or '65+')<input type="text" maxlength="3" name="age_at_phrase">
+            Age (your actual age, or '65+')<input type="text" maxlength="3" name="age_at_phrase" required>
             </p>
                 <p> 
                 Are you in the US, or affiliated with a US state? Please enter a US city and state.
                 </p>    
                     <p>
-                    City <input type="text" name="phrase_city">
+                    City <input type="text" maxlength="30" name="phrase_city" required>
                     </p>
                         <p>
-                        State Abbreviation<input type="text" maxlength="2" name="phrase_state">
+                        State Abbreviation<input type="text" maxlength="2" name="phrase_state" required>
                         </p>
                             <p>
                                 <input type="submit">

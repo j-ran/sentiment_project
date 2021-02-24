@@ -3,16 +3,16 @@
 
 {% block body %}
 
-<p>Here, "Log In" and "Create New Account" are separate. I would like to make them one form.</p>
+<p>Please fill one of these out to see YOUR phrases, or, just go see <a href="/">some phrases!</a></p>
 
 <h2 style="color:#ff005b">Existing Users Can Log-In</h2>
 <form action="/login" method="POST">
   <p>
-    Email <input type="text" name="email">
+    Email <input type="text" name="email" required>
   </p>
 
   <p>
-    Password <input type="password" name="password">
+    Password <input type="password" name="password" required>
   </p>
 
   <p>
@@ -20,24 +20,25 @@
   </p>
 </form>
 
+<p> or 
+    </p>
 
-<h2 style="color:#ff005b">Sign-Up</h2>
-<h2>Make a New Account</h2>
+    <h2 style="color:#ff005b">Make a New Account</h2>
 <form action="/create_account" method="POST">
   <p>
-    First name <input type="text" name="fname">
+    First name <input type="text" name="fname" required>
   </p>
 
   <p>
-    Last name <input type="text" name="lname">
+    Last name <input type="text" name="lname" required>
   </p>
   
   <p>
-    Email <input type="text" name="email">
+    Email <input type="text" name="email" required>
   </p>
 
   <p>
-    Password <input type="password" name="password">
+    Password <input type="password" name="password" required>
   </p>
 
   <p>
