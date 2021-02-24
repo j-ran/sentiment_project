@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Sentiment Project Add A Phrase{% endblock %}
+
+{% block body %}
+  <h1 style="color:#ff005b">Add a new phrase to the collection.</h1>
+  
+  <form action="/create_new_phrase" method="POST">
+    <p>
+      What have you noticed lately that you hadn’t noticed before? (max 140 characters) <input type="text" maxlength="140" name="phrase_text">
+      </p>
+    </form>    
+
+    
+    <p> For your phrase to be added, please fill out the following fields. 
+      </p>
+
+      
+    <form action="/create_phrase_metadata" method="POST">
+        <p>
+        Current Job or Role (max 20 characters)<input type="text" maxlength="3" name="job_at_phrase">
+        </p>
+            <p>
+            Age (your actual age, or '65+')<input type="text" maxlength="3" name="age_at_phrase">
+            </p>
+                <p> 
+                Are you in the US, or affiliated with a US state? Please enter a US city and state.
+                </p>    
+                    <p>
+                    City <input type="text" name="phrase_city">
+                    </p>
+                        <p>
+                        State Abbreviation<input type="text" maxlength="2" name="phrase_state">
+                        </p>
+                            <p>
+                                <input type="submit">
+                              </p>
+                            </form>
+{% endblock %}
+

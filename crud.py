@@ -88,7 +88,7 @@ def get_phrase_by_phrase_id(phrase_id):
     """Returns a particular phrase."""
     phrase = Phrase.query.filter_by(phrase_id=phrase_id).first()
     # How to write this with get? –
-    # phrase = Phrase.query.get(phrase_id).(1) 
+    # phrase = Phrase.query.get(phrase_id=phrase_id).one() 
     return phrase
 
 
@@ -122,13 +122,13 @@ def get_a_or_an(job):
     
     job_object = Phrase.query.filter_by(job_at_phrase=job).first()
     job = job_object.job_at_phrase
-
+    print(job)
     if (job[0]) in vowels:
-        return 'An'
+        return 'an'
     elif (job[0]) in capitals: # I am not certain this line works
-        return 'An'
+        return 'an'
     else:
-        return 'A'
+        return 'a'
 
 
 

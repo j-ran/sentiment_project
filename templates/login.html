@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Sentiment Project Homepage{% endblock %}
+
+{% block body %}
+
+<p>Here, "Log In" and "Create New Account" are separate. I would like to make them one form.</p>
+
+<h2 style="color:#ff005b">Existing Users Can Log-In</h2>
+<form action="/login" method="POST">
+  <p>
+    Email <input type="text" name="email">
+  </p>
+
+  <p>
+    Password <input type="password" name="password">
+  </p>
+
+  <p>
+    <input type="submit">
+  </p>
+</form>
+
+
+<h2 style="color:#ff005b">Sign-Up</h2>
+<h2>Make a New Account</h2>
+<form action="/create_account" method="POST">
+  <p>
+    First name <input type="text" name="fname">
+  </p>
+
+  <p>
+    Last name <input type="text" name="lname">
+  </p>
+  
+  <p>
+    Email <input type="text" name="email">
+  </p>
+
+  <p>
+    Password <input type="password" name="password">
+  </p>
+
+  <p>
+    <input type="submit">
+  </p>
+</form>
+
+
+{% endblock %}

@@ -1,13 +1,27 @@
 {% extends 'base.html' %}
-{% block title %}Sentiment Project Homepage{% endblock %}
+{% block title %}Phrases Collection, the homepage{% endblock %}
 
 {% block body %}
-  <h1>Hello old new world!</h1>
+<h1>I Notice You Notice Me Notice</h1>
+    <h2 style="color:#ff005b">How People Have Been Feeling <br>
+      and what they have been thinking<br>
+      in and beyond COVID.</h2>
 
+  <div>
+    {% for phrase in phrases %}
+      <p> What did {{ phrase[0] }}  
+        <a href="/phrases/{{phrase[3]}}">
+            {{phrase[1]}}</a>
+            say?
+        </p>
+    {% endfor %}
+  </div>
   
-  <h2>A few test places to go</h2>
+  
+  <h2 style="color:#ff005b">Some things you can do</h2>
   <ul>
-    <li><a href="/phrases">View a selection of phrases</a></li>
-    <li><a href="/users">View ___ (something)</a></li>
+    <li><a href="/create_new_phrase">Add your own new phrase</a></li>
+    <li><a href="/login">Log in to see your phrases, or sign-up</a></li>
   </ul>
+
 {% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Make a New Account{% endblock %}
+
+
+{% block body %}
+
+<h2>Make a New Account</h2>
+<form action="/create_account" method="POST">
+  <p>
+    First name <input type="text" name="fname">
+  </p>
+
+  <p>
+    Last name <input type="text" name="lname">
+  </p>
+  
+  <p>
+    Email <input type="text" name="email">
+  </p>
+
+  <p>
+    Password <input type="password" name="password">
+  </p>
+
+  <p>
+    <input type="submit">
+  </p>
+</form>
+
+{% endblock %}
