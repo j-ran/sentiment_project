@@ -92,6 +92,12 @@ def get_phrase_by_phrase_id(phrase_id):
     return phrase
 
 
+def get_phrase_by_user_id(user_id):
+    """Returns a single user's phrases."""
+    phrases = Phrase.query.filter_by(user_id=user_id).all()
+    return phrases
+
+    
 def get_phrase_collection():
     """Return entire phrase collection."""
 
@@ -122,7 +128,6 @@ def get_a_or_an(job):
     
     job_object = Phrase.query.filter_by(job_at_phrase=job).first()
     job = job_object.job_at_phrase
-    print(job)
     if (job[0]) in vowels:
         return 'an'
     elif (job[0]) in capitals: # I am not certain this line works
