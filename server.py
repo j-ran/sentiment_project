@@ -45,69 +45,99 @@ def show_metadata(phrase_id):
 
 
 #### --- LOGIN --- ####
-@app.route('/create_account')
+@app.route('/login')
 def show_login_page():
     """Display the html where the 'login' and 'create_account' forms are."""
     return render_template('login.html')
 
 
-@app.route('/create_account', methods=['POST'])
-def create_account():
-    """Create a new user account."""
-
-    fname = request.form.get('fname')
-    lname = request.form.get('lname')
+@app.route('/login', methods=['POST'])
+def login():
+    """Login existing user and put into session."""
+    
     email = request.form.get('email')
+    password = request.form.get('password')
     user = crud.get_user_by_email(email)
-    
+
     if user:
-        flash('That email is already registered. Please sign in rather than creating a new account.')
-        return render_template('login.html', user=user)
-    
+        if password == user.password: 
+            # add user to session 
+            session['user_id'] = user.user_id 
+            return redirect('/see_user_phrase_collection')
+        else:
+            flash('The password doesn\'t match the email Please try again.')
+            return render_template('login.html', user=user)
     else:
-        password = request.form.get('password')
-        user = crud.create_user(fname=fname, lname=lname, email=email, password=password, consent=False)
-        session['user_id'] = user.user_id
-        flash('Account created! Please log in.')
-        return render_template('login.html', user=user) ### SHOULD THIS BE user=session[user_id]                      
+        flash('Thanks! We don\'t have any phrases from you yet. Please finish making a new account.')
+        return redirect('/create_account')
 
 
-@app.route('/login')
-def render_login():
+@app.route('/create_account')
+def show_create_account():
+    """Display the html where the 'login' and 'create_account' forms are."""
+
     return render_template('login.html')
 
 
-@app.route('/login', methods=['POST'])
-def login_user():
-    """Log in an existing user with email and password."""
-    
-    # get email from form
-    email = request.form.get('email')
-    # get password from form
-    password = request.form.get('password')
-    # return who the user is (from phrases db)
-    user = crud.get_user_by_email(email)
-    
-    # if email exists:
-    if user:
-        # and if the password is correct:
-        if password == user.password: 
-            flash(f'You are logged in.')
-        # add user to session 
-            session['user_id'] = user.user_id 
-            return redirect('/see_user_phrase_collection')
+@app.route('/create_account', methods=['POST'])
+def create_account():
+    """Create new account and put user into session."""
         
-        # if password doesn't match email
-        else:
-            flash(f'{email} is in the database, but the password isn\'t right. Please try again!')
-            #return render_template('login.html')
-
+    fname = request.form.get('fname')
+    lname = request.form.get('lname')
+    email = request.form.get('email') # how do I get these to get here?
+    print('**********', email)
+    password = request.form.get('password') # how do I get these to get here?
+    user = crud.get_user_by_email(email)
+    if user: 
+        flash(f'User exists.')
+        return redirect('/login')
     else:
-        flash(f'There is no record of the email "{email}." Please create an account.')
-        #return render_template('login.html')
+        new_user = crud.create_user(fname=fname, lname=lname, email=email, password=password, consent=False)
+        session['user_id'] = new_user.user_id
+        
+        flash('Account created!')
+        return render_template('add_new_phrase.html', user=user, new_user=new_user) ### SHOULD THIS BE user=session[user_id]                      
+
+#### need a thing from "email and password" which is -- if it doesn't exist, then stay on the page and get the rest of the info.
+
+# @app.route('/login')
+# def render_login():
+#     """This is redundant right now ... needs to go."""
+#     return render_template('login.html')
+
+
+# @app.route('/login', methods=['POST'])
+# def login_user():
+#     """Log in an existing user with email and password."""
     
-    #return redirect('/') 
-    return render_template('login.html')                    
+#     # get email from form
+#     email = request.form.get('email')
+#     # get password from form
+#     password = request.form.get('password')
+#     # return who the user is (from phrases db)
+#     user = crud.get_user_by_email(email)
+    
+#     # if email exists:
+#     if user:
+#         # and if the password is correct:
+#         if password == user.password: 
+#             #flash(f'You are logged in.')
+#         # add user to session 
+#             session['user_id'] = user.user_id 
+#             return redirect('/see_user_phrase_collection')
+        
+#         # if password doesn't match email
+#         else:
+#             flash(f'{email} is in the database, but the password isn\'t right. Please try again!')
+#             #return render_template('login.html')
+
+#     else:
+#         flash(f'There is no record of the email "{email}." Please create an account.')
+#         #return render_template('login.html')
+    
+#     #return redirect('/') 
+#     return render_template('add_new_phrase.html') #### CREATE ACCOUNT GOES TO NEW PHRASES AND AUTO-LOGS IN                   
 
 
 #### --- MAKE A NEW PHRASE --- ####
@@ -123,7 +153,7 @@ def create_new_phrase():
 
     # get phrase from form
     phrase_text = request.form.get('phrase_text')
-    flash(f'WHAT A PHRASE! To see it with other phrases, go back to the homepage. Thank you!')
+    flash(f'WHAT A PHRASE! Now, check it into the collection by adding metadata. Thank you!')
 
     #return render_template('add_new_phrase.html', phrase_text=phrase_text)
     #return redirect('/', phrase_text=phrase_text) # probably this will go to a display page of phrases ...
@@ -142,12 +172,12 @@ def create_new_phrase():
     # job_at_phrase=job_at_phrase, 
     job_at_phrase = request.form.get('job_at_phrase')
     # age_at_phrase=age_at_phrase,
-    age_at_phrase = request.form.get('age_at_phrase') 
-
-    phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, US_or_no=US_or_no)
-
+    age_at_phrase = request.form.get('age_at_phrase')
+    user_id = session['user_id'] ### is this overwriting my session key?
+    print(session['user_id'])
+    phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, user_id=user_id, US_or_no=US_or_no)
     #return render_template('add_new_phrase.html', phrase_and_score=phrase_and_score)
-    return render_template('login.html', phrase_and_score=phrase_and_score)
+    return render_template('add_new_phrase.html', phrase_and_score=phrase_and_score)
 
 
 #### --- DISPLAY USER-SPECIFIC PHRASES --- ####
@@ -160,29 +190,12 @@ def see_user_phrase_collection():
         
         user_id = session['user_id']
         phrases = crud.get_phrase_by_user_id(user_id)
-        print('********', phrases)
         return render_template('user_phrases.html', phrases=phrases)
     
     else:
+        flash(f'Please log-in to see your phrases.')
         return redirect('/')
     
-
-
-
-# phrases = Phrase.query.filter_by(user_id=user.id).all()
-##### SOME EXTRA STUFF
-# @app.route('/login')
-# def login():    
-#     # add code to let a user enter email and password
-#     # a redirect to a page of their phrases
-#     return render_template('login.html')
-
-# THERE ARE MELONS HERE 
-# DO I NEED THIS CODE SOMEWHERE?
-    # if "username" in session.keys():
-    #     return redirect("/top-melons")
-    # else:
-    #     return render_template("homepage.html")
 
 
 if __name__ == '__main__':
