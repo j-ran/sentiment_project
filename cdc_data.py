@@ -20,18 +20,42 @@ client = Socrata('data.cdc.gov', '42GjiuP7dzylFFUbnbhnyEIyt')
 
 # First 2000 results, returned as JSON from API / converted to Python list of
 # dictionaries by sodapy.
-results = client.get("9mfq-cb36", limit=2000)
+results = client.get("9mfq-cb36", limit=10000)
 
 # Convert to pandas DataFrame
 results_df = pd.DataFrame.from_records(results)
 
 
 row_count = (results_df.shape[0]) # df.shape shows the number of rows
-print(row_count)
-print(results_df)
-print(results_df.columns)
-print(results_df.columns['submission_date'])
+#print(row_count)
+#print(results_df)
+#print(results_df.columns)
 
+for row in range(row_count):
+    submission_date = results_df.loc[row, 'submission_date']
+    while submission_date[0:10] == '2021-02-20': 
+        print(submission_date[0:10], results_df.loc[row, 'state'], results_df.loc[row, 'tot_death'])
+        break
+    # return looks like: 
+    # 2021-02-20 WY 662
+    # 2021-02-20 NH 1153
+    # 2021-02-20 KY 4426
+    # 2021-02-20 IN 12336
+    # 2021-02-20 CA 48825
+    # 2021-02-20 AZ 15480
+    # 2021-02-20 WA 4822
+    # 2021-02-20 NC 10896
+    # 2021-02-20 FSM 0
+    # 2021-02-20 NJ 22834
+    # 2021-02-20 ND 1438
+    #etc ... there are 25K rows to look through
+
+# for 'submission_date' -- make a query
+# print(results_df.query('submission_date[0:10] == 2021-02-20'))
+
+#############
+#Working on querying the db efficiently so as to return a few stats about a particular date.
+#############
 
 ##### ----- INFO ABOUT THIS DATAFRAME ----- #####
 # [15 columns]
