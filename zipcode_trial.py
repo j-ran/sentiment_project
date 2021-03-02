@@ -46,13 +46,13 @@ if __name__ == "__main__":
 #   address_components = result['address_components'] # is the list that starts on line 51
 #   for component in address_components:
 #       print(component['short_name'])
-        # to get to 'OH' go to the third component and the key called 'short_name'
+    # to get to 'OH' go to the third component and the key called 'short_name'
 #       print(address_components[3]['short_name'])
 
 
 {
-   "results" : [       # respoonse.json()['results'] is the list that opens here
-      {    # this is the start of respoonse.json()['results'][0] the zeroth item in results
+   "results" : [       # response.json()['results'] is the list that opens here
+      {    # this is the start of response.json()['results'][0] the zeroth item in results
          "address_components" : [
             {
                "long_name" : "43214",
