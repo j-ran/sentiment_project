@@ -1,17 +1,24 @@
-#!/usr/bin/env python
+"""This file looks at CDC Data, furnished through Socrata, with a Pandas dataframe."""
+
+# !/usr/bin/env python
 
 # make sure to install these packages before running:
 # pip install pandas
 # pip install sodapy
-
 import pandas as pd
 from sodapy import Socrata
 import model
+
+
+
+# to get the global_var for token, import os and call 'environ'
+# the token in stored as the value of 'SOCRATA_APP_TOKEN' key
+# this value was set up through an export in the secrets.sh file
+
+import os
+client = Socrata('data.cdc.gov', os.environ['SOCRATA_APP_TOKEN'])
 # Unauthenticated client only works with public data sets. Note 'None'
 # in place of application token, and no username or password:
-client = Socrata('data.cdc.gov', '42GjiuP7dzylFFUbnbhnyEIyt')
-
-# App Token = '42GjiuP7dzylFFUbnbhnyEIyt'
 # Example authenticated client (needed for non-public datasets):
 # client = Socrata(data.cdc.gov,
 #                  MyAppToken,
