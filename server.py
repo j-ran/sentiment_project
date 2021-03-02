@@ -5,6 +5,17 @@ from model import connect_to_db
 import requests
 import crud
 import json
+import urllib.request
+
+# from zipcode_trial import geocode
+
+# for API authentication from CDC and from Google
+import os
+from sodapy import Socrata
+client = Socrata('data.cdc.gov', os.environ['SOCRATA_APP_TOKEN'])
+API_KEY = os.environ['GOOGLE_API_KEY']
+GEOCODE_BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json"
+
 
 # datetime is used to assign the date of "date of submission" 
 # for newly created phrases
@@ -87,7 +98,7 @@ def show_metadata(phrase_id):
 
 
 ######### ------------- LOGIN ------------- #########
-######### ------------------------------------ #########
+######### --------------------------------- #########
 @app.route('/login')
 def show_login_page():
     """Display the html where the 'login' and 'create_account' forms are."""
@@ -179,8 +190,93 @@ def add_new_phrase():
     user_id = session['user_id'] 
     print(f'***** User in session is {user_id}.') 
     phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, user_id=user_id, US_or_no=US_or_no)
-    
+
     return render_template('add_new_phrase.html', phrase_and_score=phrase_and_score)
+
+####### WORKING ON ZIPCODE RETURN ########
+@app.route('/zip')
+def render_zip_form():
+    """Display the html for the 'zipcode' form."""
+    
+    return render_template('zip.html')
+
+@app.route('/zip', methods=['POST'])
+def show_address_from_zip():
+    zip = request.form.get('zip')
+    print('***1'*10, zip)
+    
+    API_KEY = os.environ['GOOGLE_API_KEY']
+    GEOCODE_BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json"
+    
+    response = requests.get(f'https://maps.googleapis.com/maps/api/geocode/json?address={zip}&key={API_KEY}')
+    # print a check: is the query successful, i.e., a 200?
+    print('***2'*10, response.status_code)
+    # import pdb; pdb.set_trace()
+    
+    print('this is the response BEFORE .json', response)
+    # OUTPUT: <Response [200]>
+
+    # format 'response' for further parsing 
+    response = response.json()
+    #response = geocode(address="Columbus")
+    #print('***3'*10, response.status_code)
+    print(print('***3'*10, response))
+    ### ???
+    #address_components = response[0].address_components
+
+
+    def geocode(address):
+        # Join the parts of the URL together into one string.
+        params = urllib.parse.urlencode({"address": zip, "key": API_KEY,})
+        url = f"{GEOCODE_BASE_URL}?{params}"
+
+        result = json.load(urllib.request.urlopen(url))
+
+        if result["status"] in ["OK", "ZERO_RESULTS"]:
+            return result["results"]
+
+        raise Exception(result["error_message"])
+
+
+    results = geocode(address=zip)
+    print(json.dumps([s["formatted_address"] for s in results], indent=2))
+    flash(f'{zip} received')
+    return render_template('zip.html')
+# Output:
+
+# [
+#   "San Francisco, CA, USA"
+# ]
+
+
+
+
+    # print('this is the response AFTER .json', response)
+    # OUTPUT: [{'submission_date': '2020-05-20T00:00:00.000', 'state': 'CA', 'tot_cases': '84057', 'new_case': '2262.0', 'pnew_case': '0', 'tot_death': '3436', 'new_death': '102.0', 'pnew_death': '0', 'created_at': '2020-05-21T15:41:38.000', 'consent_cases': 'Not agree', 'consent_deaths': 'Not agree'}]
+
+    # create a formatted string of the Python JSON object
+    # print(response.keys())
+    # response_str = json.dumps(response, sort_keys=True)
+    # print(response_str[0:17])
+    # print('***3'*10)
+    # # this is the full string:
+    # print(response_str)
+
+    # ### The return from the API is a string with 'json.dumps'
+    # ### I need to reconstruct it as a dictionary that I can call.
+    # ### I am reconstructing the string as a dictionary with 'json.loads'
+
+    # print('***4'*10)
+    # as_python = json.loads(response_str)
+    
+    # print(as_python)
+    flash(f'{zip} received')
+    return render_template('zip.html')
+
+##########################################
+##########################################
+
+
 
 
 ######### ----- DISPLAY USER-SPECIFIC PHRASES ----- #########
@@ -203,34 +299,34 @@ def see_user_phrase_collection():
 
 ### --- GETTING ADDRESS DATA FOR SIGN-IN FORM AND FOR PHRASE METADATA --- ###
 ######### --------------------------------------------------------- #########
-//when the user clicks off of the zip field:
-$('#zip').blur(function(){
-  var zip = $(this).val();
-  var city = '';
-  var state = '';
+# //when the user clicks off of the zip field:
+# $('#zip').blur(function(){
+#   var zip = $(this).val();
+#   var city = '';
+#   var state = '';
 
-  //make a request to the google geocode api
+#   //make a request to the google geocode api
 
-  $.getJSON('http://maps.googleapis.com/maps/api/geocode/json?address=43214&key=AIzaSyBNh5ATRGwWXYusbg_1zxFwHcfTF9ukmc4').success(function(response){
-    //find the city and state
-    var address_components = response.results[0].address_components;
-    $.each(address_components, function(index, component){
-      var types = component.types;
-      $.each(types, function(index, type){
-        if(type == 'locality') {
-          city = component.long_name;
-        }
-        if(type == 'administrative_area_level_1') {
-          state = component.short_name;
-        }
-      });
-    });
+#   $.getJSON('http://maps.googleapis.com/maps/api/geocode/json?address=43214&key=AIzaSyBNh5ATRGwWXYusbg_1zxFwHcfTF9ukmc4').success(function(response){
+#     //find the city and state
+#     var address_components = response.results[0].address_components;
+#     $.each(address_components, function(index, component){
+#       var types = component.types;
+#       $.each(types, function(index, type){
+#         if(type == 'locality') {
+#           city = component.long_name;
+#         }
+#         if(type == 'administrative_area_level_1') {
+#           state = component.short_name;
+#         }
+#       });
+#     });
 
-    //pre-fill the city and state
-    $('#city').val(city);
-    $('#state').val(state);
-  });
-});
+#     //pre-fill the city and state
+#     $('#city').val(city);
+#     $('#state').val(state);
+#   });
+# });
 
 
 
