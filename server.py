@@ -1,21 +1,14 @@
 """Server for sentiment-parsing app."""
 
+######### -------- IMPORTED MODULES -------- #########
+######### ------------------------------------ #######
+
 from flask import (Flask, render_template, request, flash, session, redirect)
 from model import connect_to_db
 import requests
 import crud
 import json
 import urllib.request
-
-# from zipcode_trial import geocode
-
-# for API authentication from CDC and from Google
-import os
-from sodapy import Socrata
-client = Socrata('data.cdc.gov', os.environ['SOCRATA_APP_TOKEN'])
-API_KEY = os.environ['GOOGLE_API_KEY']
-GEOCODE_BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json"
-
 
 # datetime is used to assign the date of "date of submission" 
 # for newly created phrases
@@ -25,9 +18,27 @@ from datetime import datetime
 # otherwise Jinja is silent on undefined variables
 from jinja2 import StrictUndefined
 
+
+######### -------- API AUTHENTICATION -------- #########
+######### ------------------------------------ #########
+# for API authentication from CDC and from Google
+
+import os
+
+from sodapy import Socrata
+client = Socrata('data.cdc.gov', os.environ['SOCRATA_APP_TOKEN'])
+
+API_KEY = os.environ['GOOGLE_API_KEY']
+GEOCODE_BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json"
+
+
+######### ------ USING FLASK AND JINJA ------ #########
+######### ----------------------------------- #########
+
 app = Flask(__name__)
 app.secret_key = "123"
 app.jinja_env.undefined = StrictUndefined
+
 
 
 ######### ------------- HOMEPAGE ------------- #########
@@ -64,35 +75,60 @@ def show_metadata(phrase_id):
     phrase_date = phrase_date[:10]
     # print a check: is the date correct?
     # print('***1'*10, (f'phrase_date is {phrase_date}.'))
-    response = requests.get(f'https://data.cdc.gov/resource/9mfq-cb36.json?state={phrase_state}&submission_date={phrase_date}T00:00:00.000')
+    
+    response = requests.get(f'https://data.cdc.gov/resource/9mfq-cb36.json?&submission_date={phrase_date}T00:00:00.000')
     # print a check: is the query successful, i.e., a 200?
-    # print('***2'*10, response.status_code)
-    
-    # print('this is the response BEFORE .json', response)
-    # OUTPUT: <Response [200]>
+    print('***1'*10, response.status_code)
 
-    # format 'response' for further parsing 
     response = response.json()
+    print(len(response)) # response is a list with 60 items in it
+                        # it is grouped by locality (states and territories)
+    national_data = response
     
-    # print('this is the response AFTER .json', response)
-    # OUTPUT: [{'submission_date': '2020-05-20T00:00:00.000', 'state': 'CA', 'tot_cases': '84057', 'new_case': '2262.0', 'pnew_case': '0', 'tot_death': '3436', 'new_death': '102.0', 'pnew_death': '0', 'created_at': '2020-05-21T15:41:38.000', 'consent_cases': 'Not agree', 'consent_deaths': 'Not agree'}]
+    # To get a particular state's data
+    # First, need to convert the state name into its 2-letter abbr.
+    def geocode(address):
+        # Join the parts of the URL together into one string.
+        params = urllib.parse.urlencode({"address": address, "key": API_KEY,})
+        url = f"{GEOCODE_BASE_URL}?{params}"
 
-    # create a formatted string of the Python JSON object
-    response_str = json.dumps(response, sort_keys=True)
-    print(response_str[0:17])
-    print('***3'*10)
-    # this is the full string:
-    print(response_str)
+        result = json.load(urllib.request.urlopen(url))
 
-    ### The return from the API is a string with 'json.dumps'
-    ### I need to reconstruct it as a dictionary that I can call.
-    ### I am reconstructing the string as a dictionary with 'json.loads'
+        if result["status"] in ["OK", "ZERO_RESULTS"]:
+            return result["results"]
 
-    print('***4'*10)
-    as_python = json.loads(response_str)
-    python_dict = as_python[0]
-    tot_death = python_dict['tot_death']
-    print(tot_death)
+        raise Exception(result["error_message"])
+
+    results = geocode(address=phrase_state)
+    # print a check
+    print('***2'*10, [result["formatted_address"] for result in results])
+    
+    print('***3'*10, phrase_state)
+    # check if the state is already abbreviated or not
+    if len(phrase_state) > 2:
+        # get the state's abbreviated name from its full name
+        # so that it can be found with the CDC API
+        state_short_name = (results[0]['address_components'][0]['short_name'])   
+        state_short_name = str(state_short_name)
+        state_short_name = state_short_name[2:-2]     
+    else:
+        state_short_name = phrase_state    
+    print('***4'*10, f'__{state_short_name}__')
+    # get the CDC data from the API query response
+    for state_full_data in national_data:
+        if state_full_data['state'] == state_short_name:
+            tot_death = state_full_data['tot_death']
+        
+        state_abbr = state_full_data['state']
+        print('***5'*10, f'__{state_abbr}__')      
+
+    # This is to get a sum of all US deaths in one day. 
+    # day_death_total = 0
+    # for count, state_full_data in enumerate(national_data):
+    #     day_death_total = day_death_total + int(state_full_data['tot_death'])
+        #print(count, state_full_data['state'], state_full_data['tot_death'])
+    #print('national death total for this day is', day_death_total)
+
 
     return render_template('phrase_metadata.html', phrase=phrase, tot_death=tot_death)
 
@@ -172,62 +208,11 @@ def render_phrase_form():
 def add_new_phrase():
     """Create a 140 char phrase with metadata."""
 
-    # get phrase from form
-    phrase_text = request.form.get('phrase_text')
-    flash(f'WHAT A PHRASE! Thank you!')
-    # take in the following:
-    phrase_date=str(datetime.now().year) + str(datetime.now().month) + str(datetime.now().day)
-    US_or_no=True 
-    # phrase_city=phrase_city 
-    phrase_city = request.form.get('phrase_city')
-    # phrase_state=phrase_state, 
-    phrase_state = request.form.get('phrase_state')
-    # job_at_phrase=job_at_phrase, 
-    job_at_phrase = request.form.get('job_at_phrase')
-    # age_at_phrase=age_at_phrase,
-    age_at_phrase = request.form.get('age_at_phrase')
-    # put this user in session
-    user_id = session['user_id'] 
-    print(f'***** User in session is {user_id}.') 
-    phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, user_id=user_id, US_or_no=US_or_no)
-
-    return render_template('add_new_phrase.html', phrase_and_score=phrase_and_score)
-
-####### WORKING ON ZIPCODE RETURN ########
-@app.route('/zip')
-def render_zip_form():
-    """Display the html for the 'zipcode' form."""
-    
-    return render_template('zip.html')
-
-@app.route('/zip', methods=['POST'])
-def show_address_from_zip():
+    # create address from zipcode
     zip = request.form.get('zip')
-    print('***1'*10, zip)
-    
-    API_KEY = os.environ['GOOGLE_API_KEY']
-    GEOCODE_BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json"
-    
-    response = requests.get(f'https://maps.googleapis.com/maps/api/geocode/json?address={zip}&key={API_KEY}')
-    # print a check: is the query successful, i.e., a 200?
-    print('***2'*10, response.status_code)
-    # import pdb; pdb.set_trace()
-    
-    print('this is the response BEFORE .json', response)
-    # OUTPUT: <Response [200]>
-
-    # format 'response' for further parsing 
-    response = response.json()
-    #response = geocode(address="Columbus")
-    #print('***3'*10, response.status_code)
-    print(print('***3'*10, response))
-    ### ???
-    #address_components = response[0].address_components
-
-
     def geocode(address):
         # Join the parts of the URL together into one string.
-        params = urllib.parse.urlencode({"address": zip, "key": API_KEY,})
+        params = urllib.parse.urlencode({"address": address, "key": API_KEY,})
         url = f"{GEOCODE_BASE_URL}?{params}"
 
         result = json.load(urllib.request.urlopen(url))
@@ -237,46 +222,45 @@ def show_address_from_zip():
 
         raise Exception(result["error_message"])
 
-
-    results = geocode(address=zip)
-    print(json.dumps([s["formatted_address"] for s in results], indent=2))
-    flash(f'{zip} received')
-    return render_template('zip.html')
-# Output:
-
-# [
-#   "San Francisco, CA, USA"
-# ]
-
-
-
-
-    # print('this is the response AFTER .json', response)
-    # OUTPUT: [{'submission_date': '2020-05-20T00:00:00.000', 'state': 'CA', 'tot_cases': '84057', 'new_case': '2262.0', 'pnew_case': '0', 'tot_death': '3436', 'new_death': '102.0', 'pnew_death': '0', 'created_at': '2020-05-21T15:41:38.000', 'consent_cases': 'Not agree', 'consent_deaths': 'Not agree'}]
-
-    # create a formatted string of the Python JSON object
-    # print(response.keys())
-    # response_str = json.dumps(response, sort_keys=True)
-    # print(response_str[0:17])
-    # print('***3'*10)
-    # # this is the full string:
-    # print(response_str)
-
-    # ### The return from the API is a string with 'json.dumps'
-    # ### I need to reconstruct it as a dictionary that I can call.
-    # ### I am reconstructing the string as a dictionary with 'json.loads'
-
-    # print('***4'*10)
-    # as_python = json.loads(response_str)
+    results = geocode(zip)
+    # print a check
+    print('***'*10, [result["formatted_address"] for result in results])
     
-    # print(as_python)
-    flash(f'{zip} received')
-    return render_template('zip.html')
+    # get the state's full name from the zip
+    state_full_name = [result["address_components"][3]["long_name"] for result in results]   
+    state_full_name = str(state_full_name)
+    state_full_name = state_full_name[2:-2]
+    
+    # get the city from the zip
+    city_name = [result["address_components"][1]["long_name"] for result in results]   
+    city_name = str(city_name)
+    city_name = city_name[2:-2]
 
-##########################################
-##########################################
+    flash(f'{zip} received – are you in {city_name}, {state_full_name}?')
+
+    ####
+    # get phrase from form
+    phrase_text = request.form.get('phrase_text')
+    flash(f'WHAT A PHRASE! Thank you!')
+    # take in the following to make a Phrase –
+    # date for CRUD is in form '%Y-%m-%d'
+    phrase_date=(datetime.now().strftime('%Y')) + '-' + (datetime.now().strftime('%m')) + '-' + (datetime.now().strftime('%d'))
+    print('***'*20, phrase_date)
+    US_or_no=True 
+    phrase_city = city_name
+    phrase_state = state_full_name
+    # job_at_phrase=job_at_phrase 
+    job_at_phrase = request.form.get('job_at_phrase')
+    # age_at_phrase=age_at_phrase
+    age_at_phrase = request.form.get('age_at_phrase')
+    # put this user in session
+    user_id = session['user_id'] 
+    print(f'***** User in session is {user_id}.') 
+    phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, user_id=user_id, US_or_no=US_or_no)
 
 
+    flash(f'I hope it\'s nice in {phrase_city} today.')
+    return render_template('add_new_phrase.html', phrase_and_score=phrase_and_score)
 
 
 ######### ----- DISPLAY USER-SPECIFIC PHRASES ----- #########
@@ -295,6 +279,57 @@ def see_user_phrase_collection():
     else:
         flash(f'Please log-in to see your phrases.')
         return redirect('/login')
+
+
+
+if __name__ == '__main__':
+    connect_to_db(app)
+    app.run(host='0.0.0.0', debug=True)
+
+
+### This code below was a test. No longer needed.
+##### ----  GETTING CITY AND STATE FROM ZIPCODE ---- #####
+######### -------------------------------------- #########
+@app.route('/zip')
+def render_zip_form():
+    """Display the html for the 'zipcode' form."""
+    
+    return render_template('zip.html')
+@app.route('/zip', methods=['POST'])
+def show_address_from_zip():
+    zip = request.form.get('zip')
+
+    # use geocode to parse response
+    def geocode(address):
+        # Join the parts of the URL together into one string.
+        params = urllib.parse.urlencode({"address": address, "key": API_KEY,})
+        url = f"{GEOCODE_BASE_URL}?{params}"
+
+        result = json.load(urllib.request.urlopen(url))
+
+        if result["status"] in ["OK", "ZERO_RESULTS"]:
+            return result["results"]
+
+        raise Exception(result["error_message"])
+
+    results = geocode(zip)
+    # print a check
+    print('***'*10, [result["formatted_address"] for result in results])
+    
+    # get the state's full name from the zip
+    state_full_name = [result["address_components"][3]["long_name"] for result in results]   
+    state_full_name = str(state_full_name)
+    state_full_name = state_full_name[2:-2]
+    
+    # get the city from the zip
+    city_name = [result["address_components"][1]["long_name"] for result in results]   
+    city_name = str(city_name)
+    city_name = city_name[2:-2]
+
+    flash(f'{zip} received – are you in {city_name}, {state_full_name}?')
+    
+    return render_template('zip.html')
+
 
 
 ### --- GETTING ADDRESS DATA FOR SIGN-IN FORM AND FOR PHRASE METADATA --- ###
@@ -327,12 +362,3 @@ def see_user_phrase_collection():
 #     $('#state').val(state);
 #   });
 # });
-
-
-
-
-
-
-if __name__ == '__main__':
-    connect_to_db(app)
-    app.run(host='0.0.0.0', debug=True)
