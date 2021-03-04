@@ -95,12 +95,12 @@ class Phrase(db.Model):
                                autoincrement=True, 
                                primary_key=True)
     # datetime is form %Y-%m-%d – ex. '2021-02-18' incl quotes                         
-    phrase_date = db.Column(db.DateTime)
+    phrase_date = db.Column(db.String)
     
     # the following three attributes relate to location –
     US_or_no = db.Column(db.Boolean, default=True)
     phrase_city = db.Column(db.String(30))
-    phrase_state = db.Column(db.String(2))
+    phrase_state = db.Column(db.String(30))
     
     job_at_phrase = db.Column(db.String(20))
     age_at_phrase = db.Column(db.Integer)
