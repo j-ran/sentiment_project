@@ -2,36 +2,84 @@
 {% block title %}Sentiment Project Add A Phrase{% endblock %}
 
 {% block body %}
+
+  <p><a href="">I want to see my phrase in the collection, please!</a> (right now, link goes nowhere)</p>  
+    <p><a href="/">I want to see all the phrases, please.</a></p> 
+
   <h1 style="color:#ff005b">Add a new phrase to the collection.</h1>
   
-  <form action="/create_new_phrase" method="POST">
+  <form action="/add_new_phrase" method="POST">
     <p>
-      What have you noticed lately that you hadn’t noticed before? (max 140 characters) <input type="text" maxlength="140" name="phrase_text" required>
-      </p>
-       
-
-    
-    <p> For your phrase to be added, please fill out the following fields. 
-      </p>
-
-        <p>
-        Current Job or Role (max 20 characters)<input type="text" maxlength="20" name="job_at_phrase" required>
-        </p>
-            <p>
-            Age (your actual age, or '65+')<input type="text" maxlength="3" name="age_at_phrase" required>
-            </p>
-                <p> 
-                Are you in the US, or affiliated with a US state? Please enter a US city and state.
-                </p>    
-                    <p>
-                    City <input type="text" maxlength="30" name="phrase_city" required>
-                    </p>
-                        <p>
-                        State Abbreviation<input type="text" maxlength="2" name="phrase_state" required>
+      Think about the beginning of the Covid pandemic. March 2020.</p>
+        ... <br>
+          ... <br>
+            <p>Did you think about it?</p>
+        
+              <p>
+                <input type="radio" id="gimme_a_sec" name="think_about_it" value="no" required>
+                  <label for="gimme_a_sec">Gimme a sec ...</label>
+                    <input type="radio" id="yes" name="think_about_it" value="yes" required>
+                      <label for="yes">Yes</label>
                         </p>
+    <p>
+      Were your expectations about life different then?</p>
+        <p>
+          <input type="radio" id="not_really" name="expectations_different" value="no" required>
+            <label for="not_really">Not really</label>
+              <input type="radio" id="yes" name="expectations_different" value="yes" required>
+                <label for="yes">Yes</label>
+                  </p>
+    <p>
+      Is there something you would have told yourself then that you only know now?</p>
+        <p>
+          <input type="radio" id="not_knowing_has_been_nice" name="told_yourself" value="no" required>
+            <label for="not_knowing_has_been_nice">No. Not knowing has been nice.</label>
+              <input type="radio" id="yes" name="told_yourself" value="yes" required>
+                <label for="yes">Yes</label>
+                  </p>   
+
+      <p> Okay, that's fine. </p>
+            Now think about today. <br>
+              This week. <br>
+                This month. </p>
+                <p>
+                  Is anything you're noticing especially now because of the pandemic?</p>
+                    <p>
+                      <input type="radio" id="cant_think_of_anything" name="noticing" value="no" required>
+                        <label for="cant_think_of_anything">I can't think of anything.</label>
+                          <input type="radio" id="yes" name="noticing" value="yes" required>
+                            <label for="yes">Yes</label>
+                              </p>     
+                  <p>
+                    What precious thing is available to you only because of the pandemic?
+                      <br>(max 140 characters) 
+                        <input type="text" maxlength="140" size="80" name="phrase_text" required>
+                          </p>
                             <p>
-                                <input type="submit">
+                              Please add your zipcode. <input type="text" maxlength="5" name="zip" required>
                               </p>
-                            </form>
+
+                  <p>
+                    If there is something you are finding challenging because of the pandemic, write it here:
+                      <br>(max 140 characters) 
+                        <input type="text" maxlength="140" size="80" name="phrase_text" required>
+                          </p>
+                            <p>
+                              Please add your zipcode. <input type="text" maxlength="5" name="zip" required>
+                              </p>            
+    
+    <p> To have all the right bits for the collection, please add: 
+      </p>
+        <p>
+          Current Job or Role (max 20 characters)<input type="text" maxlength="20" name="job_at_phrase" required>
+            </p>
+              <p>
+                Age (your actual age, or '65+')<input type="text" maxlength="3" name="age_at_phrase" required>
+                  </p>
+                <p>
+              <input type="submit">
+            </p>
+          </form>
+
 {% endblock %}
 
