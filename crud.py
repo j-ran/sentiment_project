@@ -64,10 +64,21 @@ def log_interaction_type(interactiontype_name):
 
     return interaction_type
 
+    # "phrase_text"
+    # "job_at_phrase"
+    # "interaction_id", # this is which interview
+    # "age_at_phrase"
+    # "phrase_city"
+    # "phrase_state_abbr"
+    # "phrase_state"
+    # "phrase_region"
+    # "phrase_date"
+    # "user_id"
+
 
 # working on 19 Feb 2021
-def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phrase, age_at_phrase, phrase_text, user_id, US_or_no=True):
-    """Create and return a new Phrase, which also includes a '0' or '1' score."""
+def create_phrase_and_score(phrase_date, phrase_city, phrase_state_abbr, phrase_state, phrase_region, job_at_phrase, age_at_phrase, phrase_text, user_id, US_or_no=True):
+    """Create and return a new Phrase, which includes a '0' or '1' score."""
 # open the csv in the seed_database.py, not here
 # pass in a phrase that is string as argument
 # phrase_date is a string of form %Y-%m-%d – ex. '2021-02-18'
@@ -77,7 +88,7 @@ def create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phras
     # print(f'Score is {polar_score}.')
 
     # variable name from model.py in class Phrase = variable name used in this funct
-    new_phrase_and_score = Phrase(phrase_date=phrase_date, US_or_no=True, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, polar_score=polar_score, user_id=user_id)
+    new_phrase_and_score = Phrase(phrase_date=phrase_date, US_or_no=True, phrase_city=phrase_city, phrase_state_abbr=phrase_state_abbr, phrase_state=phrase_state, phrase_region=phrase_region, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, polar_score=polar_score, user_id=user_id)
 
     db.session.add(new_phrase_and_score)
     db.session.commit()

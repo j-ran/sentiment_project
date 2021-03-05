@@ -23,8 +23,11 @@ if __name__ == "__main__":
     # below here only runs if the whole file is called;
     # if, for instance, I just call the filename into another file, 
     # then the following lines will not run
-    results = geocode(address="43214")
-    print(json.dumps([s["formatted_address"] for s in results], indent=2))
+    results = geocode(address="California")
+    print(results[0]['address_components'][0]['short_name'])
+
+
+    #print(json.dumps([s["formatted_address"] for s in results], indent=2))
 
 # Output:
 
@@ -50,67 +53,67 @@ if __name__ == "__main__":
 #       print(address_components[3]['short_name'])
 
 
-{
-   "results" : [       # response.json()['results'] is the list that opens here
-      {    # this is the start of response.json()['results'][0] the zeroth item in results
-         "address_components" : [
-            {
-               "long_name" : "43214",
-               "short_name" : "43214",
-               "types" : [ "postal_code" ]
-            },
-            {
-               "long_name" : "Columbus",
-               "short_name" : "Columbus",
-               "types" : [ "locality", "political" ]
-            },
-            {
-               "long_name" : "Franklin County",
-               "short_name" : "Franklin County",
-               "types" : [ "administrative_area_level_2", "political" ]
-            },
-            {
-               "long_name" : "Ohio",
-               "short_name" : "OH",
-               "types" : [ "administrative_area_level_1", "political" ]
-            },
-            {
-               "long_name" : "United States",
-               "short_name" : "US",
-               "types" : [ "country", "political" ]
-            }
-         ],
-         "formatted_address" : "Columbus, OH 43214, USA",
-         "geometry" : {
-            "bounds" : {
-               "northeast" : {
-                  "lat" : 40.07677,
-                  "lng" : -82.9971889
-               },
-               "southwest" : {
-                  "lat" : 40.02884290000001,
-                  "lng" : -83.04652489999999
-               }
-            },
-            "location" : {
-               "lat" : 40.0480476,
-               "lng" : -83.025396
-            },
-            "location_type" : "APPROXIMATE",
-            "viewport" : {
-               "northeast" : {
-                  "lat" : 40.07677,
-                  "lng" : -82.9971889
-               },
-               "southwest" : {
-                  "lat" : 40.02884290000001,
-                  "lng" : -83.04652489999999
-               }
-            }
-         },
-         "place_id" : "ChIJT66Ab0SMOIgRjsbe8wmUzig",
-         "types" : [ "postal_code" ]
-      }
-   ],
-   "status" : "OK"
-}
+# {
+#    "results" : [       # response.json()['results'] is the list that opens here
+#       {    # this is the start of response.json()['results'][0] the zeroth item in results
+#          "address_components" : [
+#             {
+#                "long_name" : "43214",
+#                "short_name" : "43214",
+#                "types" : [ "postal_code" ]
+#             },
+#             {
+#                "long_name" : "Columbus",
+#                "short_name" : "Columbus",
+#                "types" : [ "locality", "political" ]
+#             },
+#             {
+#                "long_name" : "Franklin County",
+#                "short_name" : "Franklin County",
+#                "types" : [ "administrative_area_level_2", "political" ]
+#             },
+#             {
+#                "long_name" : "Ohio",
+#                "short_name" : "OH",
+#                "types" : [ "administrative_area_level_1", "political" ]
+#             },
+#             {
+#                "long_name" : "United States",
+#                "short_name" : "US",
+#                "types" : [ "country", "political" ]
+#             }
+#          ],
+#          "formatted_address" : "Columbus, OH 43214, USA",
+#          "geometry" : {
+#             "bounds" : {
+#                "northeast" : {
+#                   "lat" : 40.07677,
+#                   "lng" : -82.9971889
+#                },
+#                "southwest" : {
+#                   "lat" : 40.02884290000001,
+#                   "lng" : -83.04652489999999
+#                }
+#             },
+#             "location" : {
+#                "lat" : 40.0480476,
+#                "lng" : -83.025396
+#             },
+#             "location_type" : "APPROXIMATE",
+#             "viewport" : {
+#                "northeast" : {
+#                   "lat" : 40.07677,
+#                   "lng" : -82.9971889
+#                },
+#                "southwest" : {
+#                   "lat" : 40.02884290000001,
+#                   "lng" : -83.04652489999999
+#                }
+#             }
+#          },
+#          "place_id" : "ChIJT66Ab0SMOIgRjsbe8wmUzig",
+#          "types" : [ "postal_code" ]
+#       }
+#    ],
+#    "status" : "OK"
+# }

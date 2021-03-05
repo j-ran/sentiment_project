@@ -10,9 +10,9 @@ import crud
 import json
 import urllib.request
 
-# datetime is used to assign the date of "date of submission" 
-# for newly created phrases
-from datetime import datetime
+# helper functions in helper.py
+import helper
+
 
 # this import causes Jinja to show errors for undefined variables
 # otherwise Jinja is silent on undefined variables
@@ -62,6 +62,17 @@ def show_phrases_homepage():
                                                 # on the right is what that same var is called here
 
 
+
+######### ------------- MAIN HOME ------------- #########
+######### ------------------------------------ #########
+@app.route('/main_home')
+def show_main_home():
+    """View main home, intro to proj (in process)."""
+  
+    return render_template('main_home.html')
+
+
+
 ######### - METADATA FOR SPECIFIC PHRASES - #########
 ######### --------------------------------- #########
 @app.route('/phrases/<phrase_id>')
@@ -82,7 +93,7 @@ def show_metadata(phrase_id):
 
     response = response.json()
     print(len(response)) # response is a list with 60 items in it
-                        # it is grouped by locality (states and territories)
+                         # it is grouped by locality (states and territories)
     national_data = response
     
     # To get a particular state's data
@@ -100,10 +111,8 @@ def show_metadata(phrase_id):
         raise Exception(result["error_message"])
 
     results = geocode(address=phrase_state)
-    # print a check
-    print('***2'*10, [result["formatted_address"] for result in results])
     
-    print('***3'*10, phrase_state)
+    print('***2'*10, phrase_state)
     # check if the state is already abbreviated or not
     if len(phrase_state) > 2:
         # get the state's abbreviated name from its full name
@@ -112,15 +121,15 @@ def show_metadata(phrase_id):
         state_short_name = str(state_short_name)
         state_short_name = state_short_name[2:-2]     
     else:
-        state_short_name = phrase_state    
-    print('***4'*10, f'__{state_short_name}__')
+        state_short_name = phrase_state_abbr    
+    print('***3'*10, f'__{state_short_name}__')
     # get the CDC data from the API query response
     for state_full_data in national_data:
         if state_full_data['state'] == state_short_name:
             tot_death = state_full_data['tot_death']
         
-        state_abbr = state_full_data['state']
-        print('***5'*10, f'__{state_abbr}__')      
+        #state_abbr = state_full_data['state']
+    print('***4'*10, f'__{state_abbr}__')      
 
     # This is to get a sum of all US deaths in one day. 
     # day_death_total = 0
@@ -243,7 +252,7 @@ def add_new_phrase():
     phrase_text = request.form.get('phrase_text')
     flash(f'WHAT A PHRASE! Thank you!')
     # take in the following to make a Phrase –
-    # date for CRUD is in form '%Y-%m-%d'
+    # date for CRUD is in form '%Y-%m-%d', stored as a string
     phrase_date=(datetime.now().strftime('%Y')) + '-' + (datetime.now().strftime('%m')) + '-' + (datetime.now().strftime('%d'))
     print('***'*20, phrase_date)
     US_or_no=True 
@@ -263,22 +272,42 @@ def add_new_phrase():
     return render_template('add_new_phrase.html', phrase_and_score=phrase_and_score)
 
 
-######### ----- DISPLAY USER-SPECIFIC PHRASES ----- #########
-######### ----------------------------------------- #########
-@app.route('/see_user_phrase_collection')
-def see_user_phrase_collection():
-    """View all of the phrases of the user in session."""
+######### ----- DISPLAY PHRASES BY REGION ----- #########
+######### ------------------------------------- #########
+@app.route('/see_phrases_by_region')
+def see_phrases_by_region():
+    """View phrases by region."""
     # check if user_id is in session
     # if in session, get all phrases from CRUD function
     if 'user_id' in session:
         user_id = session['user_id']
         phrases = crud.get_phrase_by_user_id(user_id)
         
-        return render_template('user_phrases.html', phrases=phrases)
+        return render_template('sort_by_region.html', phrases=phrases)
     
     else:
-        flash(f'Please log-in to see your phrases.')
+        flash(f'Please log-in to see your region\'s phrases.')
         return redirect('/login')
+
+
+@app.route('/sort_by_region/<phrase_id>')
+def sort_by_region(phrase_id):
+    """Show region for a phrase. 
+       Sort phrase collection by region.
+       Display a phrase from each region."""
+
+    phrase = crud.get_phrase_by_phrase_id(phrase_id)
+    phrase_state = phrase.phrase_state
+    phrase_date = phrase.phrase_date
+    phrase_date = phrase_date[:10]
+    # print a check: is the date correct?
+    # print('***1'*10, (f'phrase_date is {phrase_date}.'))
+    
+    phrase_region = helper.get_region(get_state_abbr('phrase_state'))
+
+    return render_template('sort_by_region.html', phrase=phrase, phrase_region=phrase_region)
+
+
 
 
 

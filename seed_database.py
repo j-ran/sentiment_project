@@ -20,6 +20,9 @@ import crud
 import model
 import server
 
+# import helper function to get phrase_state_abbr
+import helper
+
 os.system('dropdb phrases')
 os.system('createdb phrases')
 
@@ -41,10 +44,11 @@ columns = [
     "interaction_id", # this is which interview
     "name",
     "age_at_phrase",
-    "city_and_state", # this is actually city and state
-    "phrase_date",
+    "city_and_state", # this will be split into 'city' and 'state'
+    "phrase_date", # can accept the forms 2/26/21, 02/26/21, 20210226, and will return '2021-02-26' as a string
     "email"
 ]
+
 
 # Load in the data
 df = pd.read_csv(
@@ -108,14 +112,45 @@ for row in range(row_count):
     phrase_date = datetime.strptime(phrase_date, format).strftime('%Y-%m-%d')
     #phrase_date = datetime.strptime(phrase_date, '%Y-%m-%d')
     
-    #### get, format, and return city and state ####
+    #### get, format, and return city and state #### -- LOCATION DATA NEEDS TO BE CHANGED FOR SEED
     city_and_state = (df.loc[row, 'city_and_state']).split(', ')
     phrase_city = city_and_state[0]
-    phrase_state = city_and_state[1] 
+    phrase_state_abbr = city_and_state[1] 
+    phrase_state = helper.get_state_full_name(phrase_state_abbr)
+    phrase_region = helper.get_region(phrase_state_abbr)
+    
     # get other variables from the dataframe
     job_at_phrase = (df.loc[row, 'job_at_phrase'])
     age_at_phrase = (df.loc[row, 'age_at_phrase'])
     phrase_text = (df.loc[row, 'phrase_text'])
+    phrase_text = phrase_text.rstrip()
 
     # score the phrase and add to db
-    crud.create_phrase_and_score(phrase_date, phrase_city, phrase_state, job_at_phrase, age_at_phrase, phrase_text, user.user_id, US_or_no=True)
+    crud.create_phrase_and_score(phrase_date, phrase_city, phrase_state_abbr, phrase_state, phrase_region, job_at_phrase, age_at_phrase, phrase_text, user.user_id)
+
+    # "phrase_text"
+    # "job_at_phrase"
+    # "interaction_id", # this is which interview
+    # "age_at_phrase"
+    # "phrase_city"
+    # "phrase_state_abbr"
+    # "phrase_state"
+    # "phrase_region"
+    # "phrase_date"
+    # "user_id"
+
+# columns = [
+#     "phrase_text",
+#     "job_at_phrase",
+#     "interaction_id", # this is which interview
+#     "name",
+#     "age_at_phrase",
+#     "city_and_state", # this will be split into 'city' and 'state'
+#     "phrase_city",
+#     "phrase_state_abbr",
+#     "phrase_state",
+#     "phrase_region"
+#     "phrase_date", # can accept the forms 2/26/21, 02/26/21, 20210226, and will return '2021-02-26' as a string
+#     "email",
+#     "user_id"
+# ]    

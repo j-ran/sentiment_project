@@ -85,23 +85,23 @@ class Interaction_type(db.Model):
          return f'<Interaction_type interactiontype_id={self.interactiontype_id} interactiontype_name={self.interactiontype_name}>'
 
 
-
 class Phrase(db.Model):
     """User input saved as Phrase."""
     
     __tablename__ = "phrases"
 
     phrase_id = db.Column(db.Integer, 
-                               autoincrement=True, 
-                               primary_key=True)
+                          autoincrement=True, 
+                          primary_key=True)
     # datetime is form %Y-%m-%d – ex. '2021-02-18' incl quotes                         
     phrase_date = db.Column(db.String)
     
     # the following three attributes relate to location –
     US_or_no = db.Column(db.Boolean, default=True)
-    phrase_city = db.Column(db.String(30))
-    phrase_state = db.Column(db.String(30))
-    
+    phrase_city = db.Column(db.String(40))
+    phrase_state_abbr = db.Column(db.String(3))
+    phrase_state = db.Column(db.String(40))
+    phrase_region = db.Column(db.String(20))
     job_at_phrase = db.Column(db.String(20))
     age_at_phrase = db.Column(db.Integer)
     phrase_text = db.Column(db.String(140))                                    
