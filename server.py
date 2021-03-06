@@ -16,7 +16,6 @@ from random import choice, randint
 import helper
 import sort
 
-
 # this import causes Jinja to show errors for undefined variables
 # otherwise Jinja is silent on undefined variables
 from jinja2 import StrictUndefined
@@ -44,11 +43,21 @@ app.jinja_env.undefined = StrictUndefined
 
 
 
-######### ------------- HOMEPAGE ------------- #########
+######### ------------ START PAGE ------------ #########
 ######### ------------------------------------ #########
-@app.route('/')
-def show_phrases_homepage():
-    """View homepage, which is also a phrase collection."""
+@app.route('/start')
+def show_start_page():
+    """View the start page, which introduces the project."""
+  
+    return render_template('start.html')
+
+
+
+######### ------- BASIC PHRASE COLLECTION ------- #########
+######### --------------------------------------- #########
+@app.route('/phrase_collection')
+def show_phrase_collection():
+    """View a phrase collection of a few random phrases."""
 
     phrases = []
     #NB: all phrases are
@@ -59,20 +68,10 @@ def show_phrases_homepage():
         # turn the phrase into a tuple that keeps its attributes together
         phrases.append((a_or_an, each_phrase.job_at_phrase, each_phrase.phrase_text, each_phrase.phrase_id))
         
-    return render_template('homepage.html', 
+    return render_template('phrase_collection.html', 
                             phrases=phrases) # Explaining this in English –
                                                 # on the left is the var on the html page, in Jinja
                                                 # on the right is what that same var is called here
-
-
-
-######### ------------- MAIN HOME ------------- #########
-######### ------------------------------------ #########
-@app.route('/main_home')
-def show_main_home():
-    """View main home, intro to proj (in process)."""
-  
-    return render_template('main_home.html')
 
 
 
@@ -104,6 +103,7 @@ def show_metadata(phrase_id):
             tot_death = state_full_data['tot_death']    
 
     return render_template('phrase_metadata.html', phrase=phrase, tot_death=tot_death)
+
 
 
 ######### ------------- LOGIN ------------- #########
@@ -166,6 +166,7 @@ def create_account():
         return render_template('add_new_phrase.html', user=user, new_user=new_user)                      
 
 
+
 ######### -------- ADD A NEW PHRASE -------- #########
 ######### ---------------------------------- #########
 @app.route('/add_new_phrase')
@@ -209,6 +210,8 @@ def add_new_phrase():
  
     # get phrase from form
     phrase_text = request.form.get('phrase_text')
+    ### Add code in here to check for a repeated phrase and rejct if it's a repeat.
+
     # take in the following to make a Phrase –
     phrase_date  = helper.format_date_now() # date for CRUD is in form '%Y-%m-%d', stored as a string
     print('***4'*10, phrase_date)
@@ -222,66 +225,61 @@ def add_new_phrase():
     # age_at_phrase=age_at_phrase
     age_at_phrase = request.form.get('age_at_phrase')
     # put this user in session
-    user_id = session['user_id'] 
+    #user_id = session['user_id'] 
     print('***5'*10, (f'User in session is {user_id}.')) 
     
     phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state_abbr=phrase_state_abbr, phrase_state=phrase_state, phrase_region=phrase_region, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, user_id=user_id, US_or_no=US_or_no)
 
+    random_region_phrases = crud.get_a_few_phrases_by_region()
+    first_region_phrase = random_region_phrases[0]
+    region_name = first_region_phrase.phrase_region
 
-    flash(f'We are putting your phrase in the {phrase_region} region!')
-    return render_template('add_new_phrase.html', phrase_and_score=phrase_and_score)
+
+    flash(f'While we get your phrase ready, look at phrases in the {region_name} region!')
+    return render_template('sort_by_one_region.html', 
+                                region_phrases=random_region_phrases, 
+                                phrase_region=region_name) #### You should be able to do a redirect here
+                                                           #### Which means you do not have to run the crud to get random phrases.
 
 
-######### ----- DISPLAY PHRASES BY REGION ----- #########
-######### ------------------------------------- #########
-@app.route('/see_my_phrase_by_region')
-def see_my_phrase_by_region():
-    """Choose the most recent phrase from the user
-       and display in a regional collection."""
+
+######### ----- DISPLAY PHRASES FROM ONE REGION ----- #########
+######### ------------------------------------------- #########
+@app.route('/sort_by_one_region')
+def sort_by_one_region():
+    """Take the most recent phrase from the user
+       and display in a regional collection.
+       If no user in session, choose a random region
+       from which to display phrases."""
     
     # check if user_id is in session
-    # if in session, get all phrases from CRUD function
+    # if in session, get all user's phrases with CRUD function
     if 'user_id' in session:
         user_id = session['user_id']
-        phrases = crud.get_phrase_by_user_id(user_id)
+        user_phrases = crud.get_phrase_by_user_id(user_id)
+        
+        # return most recent phrase
+        # in a collection of phrases from the same region  
+        most_recent_user_phrase = helper.get_most_recent_of_user_phrases(user_phrases)
+        most_recent_phrase_text = most_recent_user_phrase.phrase_text
+        region_phrases = crud.get_a_few_phrases_by_region(most_recent_phrase_text)
+        
+        return render_template('sort_by_one_region.html', 
+                                region_phrases=region_phrases, 
+                                phrase_region=most_recent_user_phrase.phrase_region)
 
-        # randomly choose one of the phrases
-        # return it in a collection
-        
-        random_ind = (randint(0, (len(phrases)-1)))
-        my_selected_phrase = phrases[random_ind]
-        my_selected_phrase_text = my_selected_phrase.phrase_text
-        my_region_phrases = crud.get_a_few_phrases_by_region_incl_given(my_selected_phrase_text)
-        
-        return render_template('sort_by_region.html', 
-                                my_selected_phrase=my_selected_phrase, 
-                                my_selected_phrase_text=my_selected_phrase_text, 
-                                my_region_phrases=my_region_phrases, 
-                                phrase_state=my_selected_phrase.phrase_state, 
-                                phrase_date=my_selected_phrase.phrase_date, 
-                                phrase_region=my_selected_phrase.phrase_region)
-    
+    # if no user is in session, return phrases from  
+    # a region whcih is chosen randomly
     else:
-        flash(f'Please log-in to see your phrase with others from your region.')
-        return redirect('/login')
-
-
-@app.route('/sort_by_region/<phrase_id>')
-def sort_by_region(phrase_id):
-    """Show region for a phrase. 
-       Sort phrase collection by region.
-       Display a phrase from each region."""
-
-    phrase = crud.get_phrase_by_phrase_id(phrase_id)
-    phrase_state = phrase.phrase_state
-    phrase_date = phrase.phrase_date
-    #phrase_date = phrase_date[:10]
-    # print a check: is the date correct?
-    print('***6'*10, (f'phrase_date is {phrase_date}.'))
+        region_phrases = crud.get_a_few_phrases_by_region()
+        first_region_phrase = region_phrases[0]
+        region_name = first_region_phrase.phrase_region
+        flash(f'Please log-in to see your phrase with others from your region. These are phrases from the {region_name}.')
     
-    phrase_region = helper.get_region(phrase.phrase_state_abbr)
+        return render_template('sort_by_one_region.html', 
+                                region_phrases=region_phrases,  
+                                phrase_region=region_name)
 
-    return render_template('sort_by_region.html', phrase=phrase, phrase_state=phrase_state, phrase_date=phrase_date, phrase_region=phrase_region)
 
 
 if __name__ == '__main__':
@@ -289,78 +287,3 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
 
 
-### This code below was a test. No longer needed.
-##### ----  GETTING CITY AND STATE FROM ZIPCODE ---- #####
-######### -------------------------------------- #########
-@app.route('/zip')
-def render_zip_form():
-    """Display the html for the 'zipcode' form."""
-    
-    return render_template('zip.html')
-@app.route('/zip', methods=['POST'])
-def show_address_from_zip():
-    zip = request.form.get('zip')
-
-    # use geocode to parse response
-    def geocode(address):
-        # Join the parts of the URL together into one string.
-        params = urllib.parse.urlencode({"address": address, "key": API_KEY,})
-        url = f"{GEOCODE_BASE_URL}?{params}"
-
-        result = json.load(urllib.request.urlopen(url))
-
-        if result["status"] in ["OK", "ZERO_RESULTS"]:
-            return result["results"]
-
-        raise Exception(result["error_message"])
-
-    results = geocode(zip)
-    # print a check
-    print('***'*10, [result["formatted_address"] for result in results])
-    
-    # get the state's full name from the zip
-    state_full_name = [result["address_components"][3]["long_name"] for result in results]   
-    state_full_name = str(state_full_name)
-    state_full_name = state_full_name[2:-2]
-    
-    # get the city from the zip
-    city_name = [result["address_components"][1]["long_name"] for result in results]   
-    city_name = str(city_name)
-    city_name = city_name[2:-2]
-
-    flash(f'{zip} received – are you in {city_name}, {state_full_name}?')
-    
-    return render_template('zip.html')
-
-
-
-### --- GETTING ADDRESS DATA FOR SIGN-IN FORM AND FOR PHRASE METADATA --- ###
-######### --------------------------------------------------------- #########
-# //when the user clicks off of the zip field:
-# $('#zip').blur(function(){
-#   var zip = $(this).val();
-#   var city = '';
-#   var state = '';
-
-#   //make a request to the google geocode api
-
-#   $.getJSON('http://maps.googleapis.com/maps/api/geocode/json?address=43214&key=AIzaSyBNh5ATRGwWXYusbg_1zxFwHcfTF9ukmc4').success(function(response){
-#     //find the city and state
-#     var address_components = response.results[0].address_components;
-#     $.each(address_components, function(index, component){
-#       var types = component.types;
-#       $.each(types, function(index, type){
-#         if(type == 'locality') {
-#           city = component.long_name;
-#         }
-#         if(type == 'administrative_area_level_1') {
-#           state = component.short_name;
-#         }
-#       });
-#     });
-
-#     //pre-fill the city and state
-#     $('#city').val(city);
-#     $('#state').val(state);
-#   });
-# });
