@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Sort by {{ phrase_region }}{% endblock %}
+
+{% block body %}
+<h1 style="color:#ff005b">Things people say in the {{ phrase_region }} region</h1>
+
+<div>
+    {% for my_region_phrase in my_region_phrases %}
+    <p> <h1>{{ my_region_phrase.phrase_text }}</h1></p>
+      <p> State is {{ my_region_phrase.phrase_state }} </p> 
+        <p> Date is {{ my_region_phrase.phrase_date }}  
+           </p>
+
+    {% endfor %}
+    </div>
+
+        <p>  
+            Here's a collection of randomized phrases from that region.</p>
+            <p> 
+                Here's a collection of randomized phrases from that region, including the pertinent phrase.</p>
+                    <p> {{ my_region_phrases }}
+                <p>  
+                    Here's a collection of randomized phrases, one from each region.</p>
+
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+
+{% endblock %}

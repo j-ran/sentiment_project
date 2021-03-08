@@ -87,6 +87,9 @@ def create_phrase_and_score(phrase_date, phrase_city, phrase_state_abbr, phrase_
     # test that the above works; it does 
     # print(f'Score is {polar_score}.')
 
+    #make sure phrase has no trailing white space
+    phrase_text = phrase_text.rstrip()
+
     # variable name from model.py in class Phrase = variable name used in this funct
     new_phrase_and_score = Phrase(phrase_date=phrase_date, US_or_no=True, phrase_city=phrase_city, phrase_state_abbr=phrase_state_abbr, phrase_state=phrase_state, phrase_region=phrase_region, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, polar_score=polar_score, user_id=user_id)
 
@@ -129,6 +132,47 @@ def get_a_few_phrases():
         else:
             continue    
     return random_phrases
+
+
+def get_a_few_phrases_by_region(phrase_text):
+    """Return a random selection of 4 phrases from a region."""
+
+    # get the Phrase object belonging to the text
+    phrase_object = Phrase.query.filter_by(phrase_text=phrase_text).first() 
+    sort_region = phrase_object.phrase_region
+    phrases_from_region = Phrase.query.filter_by(phrase_region=sort_region).all()
+    
+    # return a list of non-repeating Phrases from the region
+    random_phrases_for_region = []
+    while len(random_phrases_for_region) < 4: # break the loop when count is 4
+        random_index = (randint(0, (len(phrases_from_region)-1)))
+        if phrases_from_region[random_index] not in random_phrases_for_region:
+            random_phrases_for_region.append(phrases_from_region[random_index])
+        else:
+            continue # this code is not strictly necessary    
+ 
+    return random_phrases_for_region
+
+
+def get_a_few_phrases_by_region_incl_given(phrase_text):
+    """Return a random selection of 4 phrases from a region,
+       including one given phrase."""
+
+    # get the Phrase object belonging to the text
+    phrase_object = Phrase.query.filter_by(phrase_text=phrase_text).first() 
+    sort_region = phrase_object.phrase_region
+    phrases_from_region = Phrase.query.filter_by(phrase_region=sort_region).all()
+    
+    # return a list of non-repeating Phrases from the region
+    random_phrases_for_region = [phrase_object]
+    while len(random_phrases_for_region) < 4: # break the loop when count is 4
+        random_index = (randint(0, (len(phrases_from_region)-1)))
+        if phrases_from_region[random_index] not in random_phrases_for_region:
+            random_phrases_for_region.append(phrases_from_region[random_index])
+        else:
+            continue # this code is not strictly necessary    
+ 
+    return random_phrases_for_region
 
 
 def get_a_or_an(job):

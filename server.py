@@ -10,8 +10,11 @@ import crud
 import json
 import urllib.request
 
+from random import choice, randint
+
 # helper functions in helper.py
 import helper
+import sort
 
 
 # this import causes Jinja to show errors for undefined variables
@@ -93,51 +96,12 @@ def show_metadata(phrase_id):
 
     response = response.json()
     print(len(response)) # response is a list with 60 items in it
-                         # it is grouped by locality (states and territories)
+                         # it is grouped by locality (states and territories)    
     national_data = response
-    
-    # To get a particular state's data
-    # First, need to convert the state name into its 2-letter abbr.
-    def geocode(address):
-        # Join the parts of the URL together into one string.
-        params = urllib.parse.urlencode({"address": address, "key": API_KEY,})
-        url = f"{GEOCODE_BASE_URL}?{params}"
-
-        result = json.load(urllib.request.urlopen(url))
-
-        if result["status"] in ["OK", "ZERO_RESULTS"]:
-            return result["results"]
-
-        raise Exception(result["error_message"])
-
-    results = geocode(address=phrase_state)
-    
-    print('***2'*10, phrase_state)
-    # check if the state is already abbreviated or not
-    if len(phrase_state) > 2:
-        # get the state's abbreviated name from its full name
-        # so that it can be found with the CDC API
-        state_short_name = (results[0]['address_components'][0]['short_name'])   
-        state_short_name = str(state_short_name)
-        state_short_name = state_short_name[2:-2]     
-    else:
-        state_short_name = phrase_state_abbr    
-    print('***3'*10, f'__{state_short_name}__')
     # get the CDC data from the API query response
     for state_full_data in national_data:
-        if state_full_data['state'] == state_short_name:
-            tot_death = state_full_data['tot_death']
-        
-        #state_abbr = state_full_data['state']
-    print('***4'*10, f'__{state_abbr}__')      
-
-    # This is to get a sum of all US deaths in one day. 
-    # day_death_total = 0
-    # for count, state_full_data in enumerate(national_data):
-    #     day_death_total = day_death_total + int(state_full_data['tot_death'])
-        #print(count, state_full_data['state'], state_full_data['tot_death'])
-    #print('national death total for this day is', day_death_total)
-
+        if state_full_data['state'] == phrase.phrase_state_abbr:
+            tot_death = state_full_data['tot_death']    
 
     return render_template('phrase_metadata.html', phrase=phrase, tot_death=tot_death)
 
@@ -160,7 +124,6 @@ def login():
     user = crud.get_user_by_email(email)
 
     if user:
-    
         if password == user.password: 
             # add user to session 
             session['user_id'] = user.user_id 
@@ -168,7 +131,6 @@ def login():
         else:
             flash('The password doesn\'t match the email. Please try again.')
             return render_template('login.html', user=user)
-    
     else:
         flash('Thanks! We don\'t have any phrases from you yet. Please create an account.')
         return redirect('/create_account')
@@ -188,7 +150,7 @@ def create_account():
     fname = request.form.get('fname')
     lname = request.form.get('lname')
     email = request.form.get('email') # how do I get these to get here?
-    print('**********', email)
+    print('***2'*10, email)
     password = request.form.get('password') # how do I get these to get here?
     user = crud.get_user_by_email(email)
     
@@ -217,76 +179,90 @@ def render_phrase_form():
 def add_new_phrase():
     """Create a 140 char phrase with metadata."""
 
+    if 'user_id' in session:
+        user_id = session['user_id']
+    
+    else:
+        flash(f'Please log-in to add a phrase. Thank you!')
+        return redirect('/login')
+
     # create address from zipcode
     zip = request.form.get('zip')
-    def geocode(address):
-        # Join the parts of the URL together into one string.
-        params = urllib.parse.urlencode({"address": address, "key": API_KEY,})
-        url = f"{GEOCODE_BASE_URL}?{params}"
-
-        result = json.load(urllib.request.urlopen(url))
-
-        if result["status"] in ["OK", "ZERO_RESULTS"]:
-            return result["results"]
-
-        raise Exception(result["error_message"])
-
-    results = geocode(zip)
+    #use the Google Geocode API from helper.py
+    results = helper.geocode(zip)
     # print a check
-    print('***'*10, [result["formatted_address"] for result in results])
-    
+    print('***3'*10, [result["formatted_address"] for result in results])
+
     # get the state's full name from the zip
     state_full_name = [result["address_components"][3]["long_name"] for result in results]   
     state_full_name = str(state_full_name)
     state_full_name = state_full_name[2:-2]
-    
+    # get the state's abbreviation from the zip  
+    state_abbr = [result["address_components"][3]["short_name"] for result in results]   
+    state_abbr = str(state_abbr)
+    state_abbr = state_abbr[2:-2]
     # get the city from the zip
     city_name = [result["address_components"][1]["long_name"] for result in results]   
     city_name = str(city_name)
     city_name = city_name[2:-2]
-
-    flash(f'{zip} received – are you in {city_name}, {state_full_name}?')
-
-    ####
+    #flash(f'{zip} received – hope it\'s good where I think you are: {city_name}, {state_full_name}.')
+ 
     # get phrase from form
     phrase_text = request.form.get('phrase_text')
-    flash(f'WHAT A PHRASE! Thank you!')
     # take in the following to make a Phrase –
-    # date for CRUD is in form '%Y-%m-%d', stored as a string
-    phrase_date=(datetime.now().strftime('%Y')) + '-' + (datetime.now().strftime('%m')) + '-' + (datetime.now().strftime('%d'))
-    print('***'*20, phrase_date)
-    US_or_no=True 
+    phrase_date  = helper.format_date_now() # date for CRUD is in form '%Y-%m-%d', stored as a string
+    print('***4'*10, phrase_date)
+    US_or_no = True 
     phrase_city = city_name
+    phrase_state_abbr = state_abbr
     phrase_state = state_full_name
+    phrase_region = helper.get_region(helper.get_state_abbr(phrase_state))
     # job_at_phrase=job_at_phrase 
     job_at_phrase = request.form.get('job_at_phrase')
     # age_at_phrase=age_at_phrase
     age_at_phrase = request.form.get('age_at_phrase')
     # put this user in session
     user_id = session['user_id'] 
-    print(f'***** User in session is {user_id}.') 
-    phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state=phrase_state, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, user_id=user_id, US_or_no=US_or_no)
+    print('***5'*10, (f'User in session is {user_id}.')) 
+    
+    phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state_abbr=phrase_state_abbr, phrase_state=phrase_state, phrase_region=phrase_region, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, user_id=user_id, US_or_no=US_or_no)
 
 
-    flash(f'I hope it\'s nice in {phrase_city} today.')
+    flash(f'We are putting your phrase in the {phrase_region} region!')
     return render_template('add_new_phrase.html', phrase_and_score=phrase_and_score)
 
 
 ######### ----- DISPLAY PHRASES BY REGION ----- #########
 ######### ------------------------------------- #########
-@app.route('/see_phrases_by_region')
-def see_phrases_by_region():
-    """View phrases by region."""
+@app.route('/see_my_phrase_by_region')
+def see_my_phrase_by_region():
+    """Choose the most recent phrase from the user
+       and display in a regional collection."""
+    
     # check if user_id is in session
     # if in session, get all phrases from CRUD function
     if 'user_id' in session:
         user_id = session['user_id']
         phrases = crud.get_phrase_by_user_id(user_id)
+
+        # randomly choose one of the phrases
+        # return it in a collection
         
-        return render_template('sort_by_region.html', phrases=phrases)
+        random_ind = (randint(0, (len(phrases)-1)))
+        my_selected_phrase = phrases[random_ind]
+        my_selected_phrase_text = my_selected_phrase.phrase_text
+        my_region_phrases = crud.get_a_few_phrases_by_region_incl_given(my_selected_phrase_text)
+        
+        return render_template('sort_by_region.html', 
+                                my_selected_phrase=my_selected_phrase, 
+                                my_selected_phrase_text=my_selected_phrase_text, 
+                                my_region_phrases=my_region_phrases, 
+                                phrase_state=my_selected_phrase.phrase_state, 
+                                phrase_date=my_selected_phrase.phrase_date, 
+                                phrase_region=my_selected_phrase.phrase_region)
     
     else:
-        flash(f'Please log-in to see your region\'s phrases.')
+        flash(f'Please log-in to see your phrase with others from your region.')
         return redirect('/login')
 
 
@@ -299,16 +275,13 @@ def sort_by_region(phrase_id):
     phrase = crud.get_phrase_by_phrase_id(phrase_id)
     phrase_state = phrase.phrase_state
     phrase_date = phrase.phrase_date
-    phrase_date = phrase_date[:10]
+    #phrase_date = phrase_date[:10]
     # print a check: is the date correct?
-    # print('***1'*10, (f'phrase_date is {phrase_date}.'))
+    print('***6'*10, (f'phrase_date is {phrase_date}.'))
     
-    phrase_region = helper.get_region(get_state_abbr('phrase_state'))
+    phrase_region = helper.get_region(phrase.phrase_state_abbr)
 
-    return render_template('sort_by_region.html', phrase=phrase, phrase_region=phrase_region)
-
-
-
+    return render_template('sort_by_region.html', phrase=phrase, phrase_state=phrase_state, phrase_date=phrase_date, phrase_region=phrase_region)
 
 
 if __name__ == '__main__':
