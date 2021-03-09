@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Sort 3 Ways{% endblock %}
+
+{% block body %}
+<h1 style="color:#ff005b">Sort by Month, by Feeling, and by Region</h1>
+
+<div>
+    {% for __ in __ %}
+    <p> <h1>{{ phrase.phrase_text }}</h1></p>
+      <p> State is {{ phrase.phrase_state }} </p> 
+        <p> Date is {{ phrase.phrase_date }}  
+           </p>
+
+    {% endfor %}
+    </div>
+        
+        <p> We will have three buttons here!
+            </p>
+
+<div> 
+    <p> Month sort</p>
+        <p> Feeling sort</p>
+            <p> Region sort</p>
+</div>            
+
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+
+{% endblock %}
