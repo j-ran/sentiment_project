@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Sort by {{ phrase_region }}{% endblock %}
+
+{% block body %}
+<h1 style="color:#ff005b">Things people say in the {{ phrase_region }} region</h1>
+
+<div>
+    {% for region_phrase in region_phrases %}
+    <p> <h1>{{ region_phrase.phrase_text }}</h1></p>
+      <p> State is {{ region_phrase.phrase_state }} </p> 
+        <p> Date is {{ region_phrase.phrase_date }}  
+           </p>
+
+    {% endfor %}
+    </div>
+        
+        <p> Each of these little pics represents a region.<br>
+            They look alike right now, but we know they are not alike.
+            </p>
+
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+<img src="../static/map_w_quotes.png" width="25%">
+
+{% endblock %}

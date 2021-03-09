@@ -3,9 +3,6 @@
 
 {% block body %}
 
-  <p><a href="">I want to see my phrase in the collection, please!</a> (right now, link goes nowhere)</p>  
-    <p><a href="/">I want to see all the phrases, please.</a></p> 
-
   <h1 style="color:#ff005b">Add a new phrase to the collection.</h1>
   
   <form action="/add_new_phrase" method="POST">
@@ -62,10 +59,10 @@
                   <p>
                     If there is something you are finding challenging because of the pandemic, write it here:
                       <br>(max 140 characters) 
-                        <input type="text" maxlength="140" size="80" name="phrase_text" required>
+                        <input type="text" maxlength="140" size="80" name="phrase_text">
                           </p>
                             <p>
-                              Please add your zipcode. <input type="text" maxlength="5" name="zip" required>
+                              Please add your zipcode. <input type="text" maxlength="5" name="zip">
                               </p>            
     
     <p> To have all the right bits for the collection, please add: 
@@ -80,6 +77,10 @@
               <input type="submit">
             </p>
           </form>
+
+
+    <p><a href="/sort_by_one_region">I want to see my phrase in the collection, please!</a></p>  
+      <p><a href="/">I want to see all the phrases, please.</a></p> 
 
 {% endblock %}
 

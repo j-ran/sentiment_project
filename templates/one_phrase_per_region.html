@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}One Phrase Per Region{% endblock %}
+
+{% block body %}
+<h1 style="color:#ff005b">Here's a collection of phrases from around the country.</h1>
+
+<div>
+    {% for phrase in one_phrase_per_region_list %}
+    <p> <h1>{{ phrase.phrase_text }}</h1></p>
+      <p> State is {{ phrase.phrase_state }} </p> 
+        <p> Region is {{ phrase.phrase_region }} </p>
+          <p> Date is {{ phrase.phrase_date }}  
+           </p>
+
+    {% endfor %}
+    </div>
+
+
+<img src="../static/map_w_quotes.png" width="15%">
+<img src="../static/map_w_quotes.png" width="15%">
+<img src="../static/map_w_quotes.png" width="15%">
+<img src="../static/map_w_quotes.png" width="15%">
+<img src="../static/map_w_quotes.png" width="15%">
+<img src="../static/map_w_quotes.png" width="15%">
+
+{% endblock %}
