@@ -128,6 +128,8 @@ for row in range(row_count):
     # score the phrase and add to db
     crud.create_phrase_and_score(phrase_date, phrase_city, phrase_state_abbr, phrase_state, phrase_region, job_at_phrase, age_at_phrase, phrase_text, user.user_id)
 
+    
+    # Attributes belonging to class Phrase:
     # "phrase_text"
     # "job_at_phrase"
     # "interaction_id", # this is which interview
@@ -138,6 +140,7 @@ for row in range(row_count):
     # "phrase_region"
     # "phrase_date"
     # "user_id"
+
 
 # columns = [
 #     "phrase_text",
@@ -151,6 +154,6 @@ for row in range(row_count):
 #     "phrase_state",
 #     "phrase_region"
 #     "phrase_date", # can accept the forms 2/26/21, 02/26/21, 20210226, and will return '2021-02-26' as a string
-#     "email",
+#     "email", # this is referenced from the User class
 #     "user_id"
 # ]    

@@ -76,7 +76,7 @@ def log_interaction_type(interactiontype_name):
     # "user_id"
 
 
-# working on 19 Feb 2021
+# working on 07 Mar 2021
 def create_phrase_and_score(phrase_date, phrase_city, phrase_state_abbr, phrase_state, phrase_region, job_at_phrase, age_at_phrase, phrase_text, user_id, US_or_no=True):
     """Create and return a new Phrase, which includes a '0' or '1' score."""
 # open the csv in the seed_database.py, not here
@@ -107,10 +107,11 @@ def get_phrase_by_phrase_id(phrase_id):
     return phrase
 
 
-def get_phrase_by_user_id(user_id):
-    """Returns a single user's phrases."""
+def get_phrases_by_user_id(user_id):
+    """Returns all of a single user's phrases."""
     phrases = Phrase.query.filter_by(user_id=user_id).all()
     return phrases
+
 
 
 def get_phrase_collection():
@@ -134,45 +135,52 @@ def get_a_few_phrases():
     return random_phrases
 
 
-def get_a_few_phrases_by_region(phrase_text):
+def get_a_few_phrases_by_region(phrase_text=None):
     """Return a random selection of 4 phrases from a region."""
 
-    # get the Phrase object belonging to the text
-    phrase_object = Phrase.query.filter_by(phrase_text=phrase_text).first() 
-    sort_region = phrase_object.phrase_region
-    phrases_from_region = Phrase.query.filter_by(phrase_region=sort_region).all()
-    
-    # return a list of non-repeating Phrases from the region
     random_phrases_for_region = []
-    while len(random_phrases_for_region) < 4: # break the loop when count is 4
-        random_index = (randint(0, (len(phrases_from_region)-1)))
-        if phrases_from_region[random_index] not in random_phrases_for_region:
-            random_phrases_for_region.append(phrases_from_region[random_index])
-        else:
-            continue # this code is not strictly necessary    
- 
-    return random_phrases_for_region
-
-
-def get_a_few_phrases_by_region_incl_given(phrase_text):
-    """Return a random selection of 4 phrases from a region,
-       including one given phrase."""
-
+    
     # get the Phrase object belonging to the text
-    phrase_object = Phrase.query.filter_by(phrase_text=phrase_text).first() 
-    sort_region = phrase_object.phrase_region
-    phrases_from_region = Phrase.query.filter_by(phrase_region=sort_region).all()
+    if phrase_text != None:
+        phrase_object = Phrase.query.filter_by(phrase_text=phrase_text).first() 
+        random_phrases_for_region.append(phrase_object)
+        sort_region = phrase_object.phrase_region
+        phrases_from_region = Phrase.query.filter_by(phrase_region=sort_region).all()
+    
+    # if no phrase_text supplied, choose a region at random
+    else:
+        sort_region = choice(['Pacific', 'West', 'Midwest','Mid-Atlantic', 'Southeast', 'New England', 'Territories'])
+        phrases_from_region = Phrase.query.filter_by(phrase_region=sort_region).all()    
     
     # return a list of non-repeating Phrases from the region
-    random_phrases_for_region = [phrase_object]
     while len(random_phrases_for_region) < 4: # break the loop when count is 4
         random_index = (randint(0, (len(phrases_from_region)-1)))
         if phrases_from_region[random_index] not in random_phrases_for_region:
             random_phrases_for_region.append(phrases_from_region[random_index])
         else:
             continue # this code is not strictly necessary    
- 
+
     return random_phrases_for_region
+
+
+def get_one_phrase_per_region_unless_given(given_region=None):
+    """Return a phrase for each region, but skip a given region if provided."""
+
+    one_phrase_per_region = []
+    region_list = ['Pacific', 'West', 'Midwest','Mid-Atlantic', 'Southeast', 'New England', 'Territories']
+    
+    for one_region in region_list:  
+        if one_region == given_region:
+            continue
+        phrases_for_one_region = Phrase.query.filter_by(phrase_region=one_region).all()
+        if len(phrases_for_one_region) > 1:
+            random_index = (randint(0, (len(phrases_for_one_region)-1)))  
+            one_phrase_per_region.append(phrases_for_one_region[random_index])     
+        elif len(phrases_for_one_region) == 1:
+            one_phrase_per_region.append(phrases_for_one_region)
+        else:
+            continue    
+    return one_phrase_per_region
 
 
 def get_a_or_an(job):

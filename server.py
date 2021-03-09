@@ -89,7 +89,7 @@ def show_metadata(phrase_id):
     # print a check: is the date correct?
     # print('***1'*10, (f'phrase_date is {phrase_date}.'))
     
-    response = requests.get(f'https://data.cdc.gov/resource/9mfq-cb36.json?&submission_date={phrase_date}T00:00:00.000')
+    response = requests.get(f'https://data.cdc.gov/resource/9mfq-cb36.json?submission_date={phrase_date}T00:00:00.000')
     # print a check: is the query successful, i.e., a 200?
     print('***1'*10, response.status_code)
 
@@ -256,7 +256,7 @@ def sort_by_one_region():
     # if in session, get all user's phrases with CRUD function
     if 'user_id' in session:
         user_id = session['user_id']
-        user_phrases = crud.get_phrase_by_user_id(user_id)
+        user_phrases = crud.get_phrases_by_user_id(user_id)
         
         # return most recent phrase
         # in a collection of phrases from the same region  
@@ -279,6 +279,35 @@ def sort_by_one_region():
         return render_template('sort_by_one_region.html', 
                                 region_phrases=region_phrases,  
                                 phrase_region=region_name)
+
+
+
+######### ----- DISPLAY ONE PHRASE FROM EACH REGION ----- #########
+######### ------------------------------------------- #########
+@app.route('/one_phrase_per_region')
+def show_one_phrase_per_region():
+    """Return one phrase for each region.
+       If a user is in session, include one of their phrases."""
+    
+    one_phrase_per_region_list = []
+    
+    if 'user_id' in session:
+        user_id = session['user_id']
+        print('****userid'*5, user_id)
+        user_phrases = crud.get_phrases_by_user_id(user_id)
+        rand_index = randint(0, len(user_phrases)-1)
+        rand_user_phrase = user_phrases[rand_index]
+        one_phrase_per_region_list.append(rand_user_phrase)
+        one_phrase_per_other_regions = crud.get_one_phrase_per_region_unless_given(rand_user_phrase.phrase_region)
+        for phr in one_phrase_per_other_regions:
+            one_phrase_per_region_list.append(phr)
+
+    else:
+        one_phrase_per_region = crud.get_one_phrase_per_region_unless_given(rand_user_phrase.phrase_region)
+        for phr in one_phrase_per_region:
+            one_phrase_per_region_list.append(phr)
+
+    return render_template('one_phrase_per_region.html', one_phrase_per_region_list=one_phrase_per_region_list)
 
 
 
