@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Sort by {{ month_name }} {% endblock %}
+
+{% block body %}
+<h1 style="color:#ff005b">The Internet Is To Know How I Feel</h1>
+
+  <div>
+    {% for phrase in phrases_by_month %}
+      <p> {{ phrase.phrase_text }}
+        </p>
+    {% endfor %}
+  </div>
+  
+
+{% endblock %}

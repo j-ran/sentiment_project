@@ -176,6 +176,7 @@ def render_phrase_form():
     return render_template('add_new_phrase.html')
 
 
+
 @app.route('/add_new_phrase', methods=['POST'])
 def add_new_phrase():
     """Create a 140 char phrase with metadata."""
@@ -230,7 +231,7 @@ def add_new_phrase():
     
     phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state_abbr=phrase_state_abbr, phrase_state=phrase_state, phrase_region=phrase_region, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, user_id=user_id, US_or_no=US_or_no)
 
-    random_region_phrases = crud.get_a_few_phrases_by_region()
+    random_region_phrases = crud.get_region_phrases_by_phrase_text()
     first_region_phrase = random_region_phrases[0]
     region_name = first_region_phrase.phrase_region
 
@@ -262,16 +263,16 @@ def sort_by_one_region():
         # in a collection of phrases from the same region  
         most_recent_user_phrase = helper.get_most_recent_of_user_phrases(user_phrases)
         most_recent_phrase_text = most_recent_user_phrase.phrase_text
-        region_phrases = crud.get_a_few_phrases_by_region(most_recent_phrase_text)
+        region_phrases = crud.get_region_phrases_by_phrase_text(most_recent_phrase_text)
         
         return render_template('sort_by_one_region.html', 
                                 region_phrases=region_phrases, 
                                 phrase_region=most_recent_user_phrase.phrase_region)
 
     # if no user is in session, return phrases from  
-    # a region whcih is chosen randomly
+    # a region which is chosen randomly
     else:
-        region_phrases = crud.get_a_few_phrases_by_region()
+        region_phrases = crud.get_region_phrases_by_phrase_text()
         first_region_phrase = region_phrases[0]
         region_name = first_region_phrase.phrase_region
         flash(f'Please log-in to see your phrase with others from your region. These are phrases from the {region_name}.')
@@ -282,8 +283,8 @@ def sort_by_one_region():
 
 
 
-######### ----- DISPLAY ONE PHRASE FROM EACH REGION ----- #########
-######### ------------------------------------------- #########
+######### ---- DISPLAY ONE PHRASE FROM EACH REGION ---- #########
+######### --------------------------------------------- #########
 @app.route('/one_phrase_per_region')
 def show_one_phrase_per_region():
     """Return one phrase for each region.
@@ -303,11 +304,88 @@ def show_one_phrase_per_region():
             one_phrase_per_region_list.append(phr)
 
     else:
-        one_phrase_per_region = crud.get_one_phrase_per_region_unless_given(rand_user_phrase.phrase_region)
+        one_phrase_per_region = crud.get_one_phrase_per_region_unless_given()
         for phr in one_phrase_per_region:
             one_phrase_per_region_list.append(phr)
 
     return render_template('one_phrase_per_region.html', one_phrase_per_region_list=one_phrase_per_region_list)
+
+
+
+######### -------- SORT BY MONTH -------- #########
+######### ------------------------------- #########
+@app.route('/sort_three_ways')
+def show_sort_three_ways():
+    """Display the html for the 'sort_three_ways' form."""
+    
+    return render_template('sort_three_ways.html')
+
+@app.route('/sort_by_month')
+def show_sort_three_ways_month():
+    """Display the html for the 'sort_three_ways' form."""
+    
+    return redirect('/sort_three_ways')
+
+
+@app.route('/sort_by_month', methods=['POST'])
+def get_phrases_by_month():
+    """Return the phrases for a given month."""
+
+    # get_args for which month
+    # it is in the form of a date_string, which is taken by the helper function
+    # run helper function for full month name 
+    date_str = request.form.get('month')
+    month_num = date_str[5:7]
+    month_name = helper.month_name_from_num(month_num)
+    # run helper function to get list of phrase texts
+    phrases_by_month = crud.get_phrases_by_month(date_str)
+    
+    return render_template('sort_by_month.html', 
+                            month_name=month_name, 
+                            phrases_by_month=phrases_by_month)
+
+
+
+######### -------- SORT BY FEELING -------- #########
+######### --------------------------------- #########
+@app.route('/sort_by_feeling')
+def show_sort_three_ways_feeling():
+    """Display the html for the 'sort_three_ways' form."""
+
+    return redirect('/sort_three_ways')
+
+
+@app.route('/sort_by_feeling', methods=['POST'])
+def get_phrases_by_feeling():
+    """Return the phrases for a given feeling."""
+
+    feeling = request.form.get('feeling')
+    phrases_by_feeling = helper.sort_by_feeling(feeling)
+    
+    return render_template('sort_by_feeling.html',  
+                            phrases_by_feeling=phrases_by_feeling)    
+
+
+
+######### -------- SORT BY REGION -------- #########
+######### -------------------------------- #########
+@app.route('/sort_by_region')
+def show_sort_three_ways_region():
+    """Display the html for the 'sort_three_ways' form."""
+    
+    return redirect('/sort_three_ways')
+
+
+@app.route('/sort_by_region', methods=['POST'])
+def get_phrases_by_region_name():
+    """Return the phrases for a given feeling."""
+
+    region = request.form.get('region')
+    region_phrases = crud.get_phrases_by_region(region)
+
+    return render_template('sort_by_one_region.html', 
+                            region_phrases=region_phrases,  
+                            phrase_region=region)
 
 
 
