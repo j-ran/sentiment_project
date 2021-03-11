@@ -56,6 +56,23 @@ def geocode(address):
     raise Exception(result["error_message"])
 
 
+######### ---- ENCHANT SPELLING SUGGESTER ---- #########
+######### -------------------------------------- #########
+import enchant  
+
+def suggester(word):
+    broker = enchant.Broker()
+    broker.describe()
+    #[<Enchant: Hspell Provider>, <Enchant: Aspell Provider>, <Enchant: Myspell Provider>, <Enchant: Ispell Provider>]
+    broker.list_languages()
+    #['en', 'en_AU', 'en_CA', 'en_GB', 'en_US']
+    d = enchant.Dict("en_US")
+    d.check(word)
+    print(d.suggest(word))
+
+#suggester("helo")
+
+
 ######### ---- CDC SOCRATA API FOR VACCINATIONS ---- #########
 ######### ------------------------------------------ #########
 import crud 
