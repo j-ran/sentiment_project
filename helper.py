@@ -57,20 +57,50 @@ def geocode(address):
 
 
 ######### ---- ENCHANT SPELLING SUGGESTER ---- #########
-######### -------------------------------------- #########
+######### ------------------------------------ #########
+# See info on PyEnchant here:
+# http://pyenchant.github.io/pyenchant/tutorial.html
+
 import enchant  
+from enchant.tokenize import get_tokenizer, EmailFilter
 
 def suggester(word):
-    broker = enchant.Broker()
-    broker.describe()
-    #[<Enchant: Hspell Provider>, <Enchant: Aspell Provider>, <Enchant: Myspell Provider>, <Enchant: Ispell Provider>]
-    broker.list_languages()
-    #['en', 'en_AU', 'en_CA', 'en_GB', 'en_US']
-    d = enchant.Dict("en_US")
-    d.check(word)
-    print(d.suggest(word))
+    """If word not in Enchant's English language dictionary, 
+    suggest 3 alternatives.
 
-#suggester("helo")
+    >>> suggester("helo")
+    ['hole', 'help', 'helot']
+    >>> suggester("hello")
+    None
+
+    """
+    
+    d = enchant.Dict("en_US")
+    if d.check(word) == False:
+        return (d.suggest(word)[:3])
+        
+
+def is_email(email_entry):
+    """Using a Filter for emails, check that an entry
+    contains an email.email
+    
+    >>> is_email("send an email to fake@example.com please")
+    True
+    >>> is_email("send an email to fakeexample.com please")
+    False
+    """
+
+    tknzr1 = get_tokenizer("en_US")
+    tknzr_list1 = [w for w in tknzr1(email_entry)]
+    tknzr2 = get_tokenizer("en_US", filters=[EmailFilter])
+    tknzr_list2 = [w for w in tknzr2(email_entry)]
+    print(len(tknzr_list1), len(tknzr_list2))
+    if (len(tknzr_list1)) == (len(tknzr_list2)): 
+        #print("Please make sure that's an email!")
+        return False
+    else:
+        #print("ok") 
+        return True   
 
 
 ######### ---- CDC SOCRATA API FOR VACCINATIONS ---- #########
