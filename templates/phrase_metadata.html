@@ -3,15 +3,18 @@
 {% block title %}the {{ phrase.job_at_phrase }}'s phrase –{% endblock %}
 
 {% block body %}
-<h1>{{ phrase.phrase_text }}</h1>
+<h1>{{ phrase.phrase_date }}</h1>
 
-<p>
-  This was from a {{phrase.age_at_phrase}}-yr old {{phrase.job_at_phrase}} in {{ phrase.phrase_city }}, {{ phrase.phrase_state }}.
-</p>
+  <p>{{ phrase.phrase_text }}
+  </p>
+  
+  <p>
+    This was from a {{phrase.age_at_phrase}}-yr old {{phrase.job_at_phrase}} in {{ phrase.phrase_city }}, {{ phrase.phrase_state_abbr }}.
+  </p>
 
-<p>  
-  In {{ phrase.phrase_state }}, {{ tot_death }} people died from COVID this day.
-</p>
+  <p>  
+    In {{ phrase.phrase_state }}, {{ ref_tot }} people either died from COVID in the state or got the vaccine in the nation this day.
+  </p>
 
 <img src="../static/map_w_quotes.png" width="85%">
 {% endblock %}

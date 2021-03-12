@@ -1,17 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}Sort 3 Ways{% endblock %}
+{% block title %}What sort?{% endblock %}
 
 {% block body %}
-<h1 style="color:#ff005b">Sort by Month, by Feeling, and by Region</h1>
-        
-        <p> We will have three buttons here!
-            </p>
+<h1 style="color:#ff005b">What sort of feelings would you like to see?</h1>
 
 <div> 
-    <p><button id="month-sort" type="button"> Month sort</button></p>
-    <p><button id="feeling-sort" type="button"> Feeling sort</button></p>
-    <p><button id="region-sort" type="button"> Region sort</button></p>
+    <p><button id="month-sort" type="button"> By Month</button></p>
+    <p><button id="feeling-sort" type="button"> By Positivity </button></p>
+    <p><button id="region-sort" type="button"> By US Region </button></p>
+    <p><a href="/login"><button id="make-button" type="button"> make </button></a> a phrase yourself</p>
 </div>            
 
 <div id="month-form" style="display: none"><p>
@@ -81,6 +79,7 @@
                                                 <label for="New England">New England</label>         
                                             <input type="submit">
                                         </form>
-                                    </p></div>                    
+                                    </p></div>                
+                                    
 
 {% endblock %}

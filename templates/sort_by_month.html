@@ -2,14 +2,17 @@
 {% block title %}Sort by {{ month_name }} {% endblock %}
 
 {% block body %}
-<h1 style="color:#ff005b">The Internet Is To Know How I Feel</h1>
-
-  <div>
-    {% for phrase in phrases_by_month %}
-      <p> {{ phrase.phrase_text }}
-        </p>
-    {% endfor %}
-  </div>
+<h1 style="color:#ff005b">The Internet Is a Thing That Makes Us Feel</h1>
+<p> Touch the individual phrases to learn more about each.</p>
+    <div>
+        {% for phrase in phrases_by_month %}
+            <p> <a href="/phrases/{{phrase[3]}}">{{ phrase.phrase_text }}</a>
+            </p>
+        {% endfor %}
+    </div>
   
+    <a href="/phrases/{{phrase[3]}}">
+        {{phrase[1]}}
+      </a>
 
 {% endblock %}

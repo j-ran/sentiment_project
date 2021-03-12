@@ -1,29 +1,24 @@
 {% extends 'base.html' %}
 
-{% block title %}Sort by {{ phrase_region }}{% endblock %}
+{% block title %}sort by {{ phrase_region }}{% endblock %}
 
 {% block body %}
-<h1 style="color:#ff005b">Things people say in the {{ phrase_region }} region</h1>
+<h1 style="color:#ff005b"> people speaking from the {{ phrase_region }} </h1>
 
-<div>
-    {% for region_phrase in region_phrases %}
-    <p> <h1>{{ region_phrase.phrase_text }}</h1></p>
-      <p> State is {{ region_phrase.phrase_state }} </p> 
-        <p> Date is {{ region_phrase.phrase_date }}  
-           </p>
+  <div>
+    {% for region_phrase_tuple in region_phrases_tuples %}
+      <p><h1>{{ region_phrase_tuple[2] }}
+          </h1>
+        </p>
+        <p> What   
+          <a href="/phrases/{{region_phrase_tuple[3]}}">
+            {{ region_phrase_tuple[0] }} {{region_phrase_tuple[1]}}
+          </a>
+            feels.
+        </p>
 
     {% endfor %}
-    </div>
-        
-        <p> Each of these little pics represents a region.<br>
-            They look alike right now, but we know they are not alike.
-            </p>
-
-<img src="../static/map_w_quotes.png" width="25%">
-<img src="../static/map_w_quotes.png" width="25%">
-<img src="../static/map_w_quotes.png" width="25%">
-<img src="../static/map_w_quotes.png" width="25%">
-<img src="../static/map_w_quotes.png" width="25%">
-<img src="../static/map_w_quotes.png" width="25%">
+  </div>
+      
 
 {% endblock %}
