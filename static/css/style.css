@@ -1,0 +1,36 @@
+
+body {
+    background: #97999B;
+    font-family: 'Space Grotesk', sans-serif;
+    color:#17008B;
+}    
+
+h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    }
+
+h2 {
+    font-family: 'Brygada 1918', serif;
+    color:#E5E1E6;
+    font-size: 34px;
+    }    
+
+.container {
+    background-color: none
+    }
+
+.phr {
+    font-family: 'Space Grotesk', sans-serif;
+    color:#17008B;
+    }
+    
+.txt {
+    font-family: 'Brygada 1918', serif;
+    color:#17008B;
+    }
+
+.font-effect-anaglyph {
+    font-family: 'Space Grotesk', sans-serif;
+    text-shadow: -0.06em 0 red, 0.06em 0 cyan;
+    font-size: 42px;
+    }    
