@@ -3,10 +3,11 @@ body {
     background: #97999B;
     font-family: 'Space Grotesk', sans-serif;
     color:black;
-}    
+    }    
 
 h1 {
     font-family: 'Space Grotesk', sans-serif;
+    color:#F9E547;
     }
 
 h2 {
@@ -18,12 +19,24 @@ p {
     font-family: 'Space Grotesk', sans-serif;
     }    
 
+a {
+    color:#E5E1E6;
+    }
+
+a:hover {
+    color:#17008B;
+    text-decoration: none;
+    }     
+
 .container {
     background-color: none
     }
 
 .font-effect-anaglyph {
     font-family: 'Space Grotesk', sans-serif;
+    color: #F9E547;
     text-shadow: -0.06em 0 red, 0.06em 0 cyan;
     font-size: 42px;
     }    
+
+   

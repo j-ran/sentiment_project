@@ -1,20 +1,51 @@
 {% extends 'base.html' %}
 
-{% block title %}the {{ phrase.job_at_phrase }}'s phrase –{% endblock %}
+{% block title %}the {{ phrase.job_at_phrase }} –{% endblock %}
 
 {% block body %}
-<h1>{{ phrase.phrase_date }}</h1>
 
-  <p>{{ phrase.phrase_text }}
-  </p>
+<body style="margin-bottom: 20%;">
+  <main class="container">
+
+<div class="font-effect-anaglyph">{{ month_name }} {{ day_name }}, {{ year_name }}</div>
+
+  <h1>{{ phrase.phrase_text }}</h1> <h2>– said (a) {{phrase.age_at_phrase}}-yr old {{phrase.job_at_phrase}} in {{ phrase.phrase_city }}.</h2>
   
-  <p>
-    This was from a {{phrase.age_at_phrase}}-yr old {{phrase.job_at_phrase}} in {{ phrase.phrase_city }}, {{ phrase.phrase_state_abbr }}.
+
+  <p> On this day:
   </p>
 
-  <p>  
-    In {{ phrase.phrase_state }}, {{ ref_tot }} people either died from COVID in the state or got the vaccine in the nation this day.
-  </p>
+  <div id="state_deaths">
+    <p>  
+      {{ tot_death }} people in {{ phrase.phrase_state }} died from Covid.
+    </p>
+  </div>
+  
+  <div id="vaccine_tot">
+    <p>  
+      {{ tot_vaccines }} vaccines were distributed across the nation.
+    </p>
+  </div>
+    
+<!--code adapted from W.S. Toh https://code-boxx.com/rotate-spin-image-html-css/ -->
+  <style>
+    @keyframes spin3D {
+      from { transform: rotateY(0deg) }
+      to { transform: rotateY(360deg) }
+    }
+    .spin3D {
+      animation-name: spin3D;
+      animation-duration: 10s;
+      animation-iteration-count: infinite;
+      /* linear | ease | ease-in | ease-out | ease-in-out */
+      animation-timing-function: ease-out;
+    }
+  </style>
+  
+ 
+  <img src="/static/map_150px.png" class="spin3D"/>
+  
 
-<img src="../static/map_w_quotes.png" width="85%">
+  </main>
+</body>
 {% endblock %}
