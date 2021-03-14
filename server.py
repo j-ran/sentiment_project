@@ -14,7 +14,6 @@ from random import choice, randint
 
 # helper functions in helper.py
 import helper
-import sort
 
 # this import causes Jinja to show errors for undefined variables
 # otherwise Jinja is silent on undefined variables
@@ -106,10 +105,11 @@ def show_metadata(phrase_id):
     tot_vaccines = helper.get_vaccine_data(phrase_id)
     # if no vaccines have been allotted, return 'no'
     if tot_vaccines == 0:
-        tot_vaccines = str('Unfortunately, no')
+        tot_vaccines = str('No vaccines were yet')
     else: 
-        tot_vaccines = "{:,}".format(tot_vaccines) #format with commas   
-        
+        tot_vaccines_num = "{:,}".format(tot_vaccines) #format with commas   
+        tot_vaccines = (f'{tot_vaccines_num} vaccines were')
+    
     # Return either death or vaccine depending on sentiment score.
     # if phrase.polar_score == 1:
     #     return tot_vaccines
@@ -122,13 +122,18 @@ def show_metadata(phrase_id):
     year_name = phrase_date_str[:4]
     day_name = phrase_date_str[-2:]
 
+    # get the right article for the job title
+    a_or_an = crud.get_a_or_an(phrase.job_at_phrase)
+    
+
     return render_template('phrase_metadata.html', 
                             phrase=phrase,
                             tot_vaccines=tot_vaccines,
                             tot_death=tot_death,
                             month_name=month_name,
                             day_name=day_name,
-                            year_name=year_name)
+                            year_name=year_name,
+                            a_or_an=a_or_an)
 
 
 

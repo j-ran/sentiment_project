@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}the {{ phrase.job_at_phrase }} –{% endblock %}
+{% block title %}{{ a_or_an }} {{ phrase.job_at_phrase }} said –{% endblock %}
 
 {% block body %}
 
@@ -9,7 +9,7 @@
 
 <div class="font-effect-anaglyph">{{ month_name }} {{ day_name }}, {{ year_name }}</div>
 
-  <h1>{{ phrase.phrase_text }}</h1> <h2>– said (a) {{phrase.age_at_phrase}}-yr old {{phrase.job_at_phrase}} in {{ phrase.phrase_city }}.</h2>
+  <h1>{{ phrase.phrase_text }}</h1> <h2>– said a {{phrase.age_at_phrase}}-yr old {{phrase.job_at_phrase}} in {{ phrase.phrase_city }}.</h2>
   
 
   <p> On this day:
@@ -23,7 +23,7 @@
   
   <div id="vaccine_tot">
     <p>  
-      {{ tot_vaccines }} vaccines were distributed across the nation.
+      {{ tot_vaccines }} distributed across the nation.
     </p>
   </div>
     
@@ -43,7 +43,7 @@
   </style>
   
  
-  <img src="/static/map_150px.png" class="spin3D"/>
+  <img src="/static/img/map_150px.png" class="spin3D"/>
   
 
   </main>
