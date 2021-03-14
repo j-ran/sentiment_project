@@ -85,11 +85,11 @@ def show_metadata(phrase_id):
     phrase = crud.get_phrase_by_phrase_id(phrase_id)
     phrase_state = phrase.phrase_state
     phrase_date = str(phrase.phrase_date)
-    phrase_date = phrase_date[:10]
+    phrase_date_str = phrase_date[:10]
     # print a check: is the date correct?
-    # print('***1'*10, (f'phrase_date is {phrase_date}.'))
+    # print('***1'*10, (f'phrase_date is {phrase_date_str}.'))
     
-    response = requests.get(f'https://data.cdc.gov/resource/9mfq-cb36.json?submission_date={phrase_date}T00:00:00.000')
+    response = requests.get(f'https://data.cdc.gov/resource/9mfq-cb36.json?submission_date={phrase_date_str}T00:00:00.000')
     # print a check: is the query successful, i.e., a 200?
     print('***1'*10, response.status_code)
 
@@ -100,9 +100,35 @@ def show_metadata(phrase_id):
     # get the CDC data from the API query response
     for state_full_data in national_data:
         if state_full_data['state'] == phrase.phrase_state_abbr:
-            tot_death = state_full_data['tot_death']    
+            tot_death = int(state_full_data['tot_death']) # add 'int()' for number formatting 
+            tot_death = "{:,}".format(tot_death)   
 
-    return render_template('phrase_metadata.html', phrase=phrase, tot_death=tot_death)
+    tot_vaccines = helper.get_vaccine_data(phrase_id)
+    # if no vaccines have been allotted, return 'no'
+    if tot_vaccines == 0:
+        tot_vaccines = str('Unfortunately, no')
+    else: 
+        tot_vaccines = "{:,}".format(tot_vaccines) #format with commas   
+        
+    # Return either death or vaccine depending on sentiment score.
+    # if phrase.polar_score == 1:
+    #     return tot_vaccines
+    # else:
+    #     return tot_death  
+
+    # create a nice-looking return for phrase date
+    month_num = phrase_date_str[5:7]
+    month_name = helper.month_name_from_num(month_num)
+    year_name = phrase_date_str[:4]
+    day_name = phrase_date_str[-2:]
+
+    return render_template('phrase_metadata.html', 
+                            phrase=phrase,
+                            tot_vaccines=tot_vaccines,
+                            tot_death=tot_death,
+                            month_name=month_name,
+                            day_name=day_name,
+                            year_name=year_name)
 
 
 
@@ -174,7 +200,6 @@ def render_phrase_form():
     """Display the html for the 'add_new_phrase' form."""
     
     return render_template('add_new_phrase.html')
-
 
 
 @app.route('/add_new_phrase', methods=['POST'])
@@ -264,11 +289,18 @@ def sort_by_one_region():
         most_recent_user_phrase = helper.get_most_recent_of_user_phrases(user_phrases)
         most_recent_phrase_text = most_recent_user_phrase.phrase_text
         region_phrases = crud.get_region_phrases_by_phrase_text(most_recent_phrase_text)
-        
+
+        region_phrases_tuples = []
+        for region_phrase in region_phrases:
+            region_phrase_tuple = helper.create_tuple_for_phrase(region_phrase.phrase_id)
+            region_phrases_tuples.append(region_phrase_tuple)
+
         return render_template('sort_by_one_region.html', 
+                                region_phrases_tuples=region_phrases_tuples,
+                                region_phrase_tuple=region_phrase_tuple,
                                 region_phrases=region_phrases, 
                                 phrase_region=most_recent_user_phrase.phrase_region)
-
+    
     # if no user is in session, return phrases from  
     # a region which is chosen randomly
     else:
@@ -312,14 +344,17 @@ def show_one_phrase_per_region():
 
 
 
-######### -------- SORT BY MONTH -------- #########
-######### ------------------------------- #########
+######### -------- SORT THREE WAYS -------- #########
+######### --------------------------------- #########
 @app.route('/sort_three_ways')
 def show_sort_three_ways():
     """Display the html for the 'sort_three_ways' form."""
     
     return render_template('sort_three_ways.html')
 
+
+######### -------- SORT BY MONTH -------- #########
+######### ------------------------------- #########
 @app.route('/sort_by_month')
 def show_sort_three_ways_month():
     """Display the html for the 'sort_three_ways' form."""
@@ -378,14 +413,22 @@ def show_sort_three_ways_region():
 
 @app.route('/sort_by_region', methods=['POST'])
 def get_phrases_by_region_name():
-    """Return the phrases for a given feeling."""
+    """Return the phrases for a given region."""
 
     region = request.form.get('region')
     region_phrases = crud.get_phrases_by_region(region)
 
+    region_phrases_tuples = []
+    for region_phrase in region_phrases:
+        region_phrase_tuple = helper.create_tuple_for_phrase(region_phrase.phrase_id)
+        region_phrases_tuples.append(region_phrase_tuple)
+
+
     return render_template('sort_by_one_region.html', 
-                            region_phrases=region_phrases,  
-                            phrase_region=region)
+                    region_phrases_tuples=region_phrases_tuples,
+                    region_phrase_tuple=region_phrase_tuple,
+                    region_phrases=region_phrases,  
+                    phrase_region=region)
 
 
 
