@@ -1,14 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}What sort?{% endblock %}
+{% block title %} what sort? {% endblock %}
 
 {% block body %}
-<h1 style="color:#ff005b">What sort of feelings would you like to see?</h1>
+
+<body style="margin-bottom: 20%;">
+    <main class="container">
+        <h1>What sort of feelings would you like to see?</h1>
 
 <div> 
     <p><button id="month-sort" type="button"> By Month</button></p>
-    <p><button id="feeling-sort" type="button"> By Positivity </button></p>
-    <p><button id="region-sort" type="button"> By US Region </button></p>
+    <p><button id="feeling-sort" type="button"> By Happiness Level </button></p>
+    <p><button id="region-sort" type="button"> By U.S. Region</button></p>
     <p><a href="/login"><button id="make-button" type="button"> make </button></a> a phrase yourself</p>
 </div>            
 
@@ -17,7 +20,7 @@
         <h2>Pick a month and see what the nation says – </h2>
             </p>
                 <p>
-                <h2 style="color:#ff005b">2020</h2> 
+                <h2>2020</h2> 
                     <input type="radio" id="month" name="month" value="2020-04-01">
                         <label for="Apr_2020">April</label>
                             <input type="radio" id="month" name="month" value="2020-05-01">
@@ -35,17 +38,17 @@
                                             <input type="radio" id="month" name="month" value="2020-11-01">
                                         <label for="Nov_2020">November</label>
                                     <input type="radio" id="month" name="month" value="2020-12-01">
-                                <label for="Dec_2020">December</label>                            
-                            <input type="radio" id="month" name="month" value="2021-01-01">
-                        <h2 style="color:#ff005b">2021</h2>    
-                            <label for="Jan_2021">January</label>
-                                <input type="radio" id="month" name="month" value="2021-02-01">
-                                    <label for="Feb_2021">February</label>
-                                        <input type="radio" id="month" name="month" value="2021-03-01" checked>
-                                            <label for="Mar_2021">March</label>
-                                        <input type="submit">
-                                    </form>
-                                </p></div>
+                                <label for="Dec_2020">December</label> 
+                            <h2>2021</h2>                             
+                                <input type="radio" id="month" name="month" value="2021-01-01">
+                                    <label for="Jan_2021">January</label>
+                                        <input type="radio" id="month" name="month" value="2021-02-01">
+                                            <label for="Feb_2021">February</label>
+                                                <input type="radio" id="month" name="month" value="2021-03-01" checked>
+                                                    <label for="Mar_2021">March</label>
+                                                <input type="submit">
+                                            </form>
+                                        </p></div>
 
 <div id="feeling-form" style="display: none"><p>
     <form action="/sort_by_feeling" method="POST">
@@ -80,6 +83,7 @@
                                             <input type="submit">
                                         </form>
                                     </p></div>                
-                                    
+    </main>
+</body>                             
 
 {% endblock %}

@@ -1,8 +1,41 @@
 {% extends 'base.html' %}
-{% block title %}Sort by Feeling {% endblock %}
+{% block title %} sorted feelings {% endblock %}
 
 {% block body %}
-<h1 style="color:#ff005b">The Internet Is To Know How I Feel</h1>
+
+
+<main class="container">
+  <div class="font-effect-anaglyph"><h1> based in feeling </h1></div>
+    
+
+    <body onLoad="scrollDiv_init()">
+      <div id="scrollingDiv" style="overflow:auto;width:800px;height:800px">
+        {% for phrase_by_feeling_tuple in phrases_by_feeling_tuples %}
+          <p> – – – – – – – – – – – – – – – – – – – – – – – – – – – – </p>
+            <h1>{{ phrase_by_feeling_tuple[2] }}
+            </h1>
+          </p>
+          <p> What   
+            <a onMouseOver="pauseDiv()" onMouseOut="resumeDiv()" href="/phrases/{{phrase_by_feeling_tuple[3]}}" >
+              {{ phrase_by_feeling_tuple[0] }} {{phrase_by_feeling_tuple[1]}}
+            </a>
+            feels.
+          </p>
+        {% endfor %}
+      </div>
+    </body>
+  </html>
+</main>
+
+
+
+
+
+
+
+
+
+
 
   <div>
     {% for phrase in phrases_by_feeling %}

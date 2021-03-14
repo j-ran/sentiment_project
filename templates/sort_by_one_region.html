@@ -1,24 +1,31 @@
 {% extends 'base.html' %}
 
-{% block title %}sort by {{ phrase_region }}{% endblock %}
+{% block title %}the {{ region }}{% endblock %}
 
 {% block body %}
-<h1 style="color:#ff005b"> people speaking from the {{ phrase_region }} </h1>
 
-  <div>
-    {% for region_phrase_tuple in region_phrases_tuples %}
-      <p><h1>{{ region_phrase_tuple[2] }}
-          </h1>
-        </p>
-        <p> What   
-          <a href="/phrases/{{region_phrase_tuple[3]}}">
-            {{ region_phrase_tuple[0] }} {{region_phrase_tuple[1]}}
-          </a>
+
+<main class="container">
+  <div class="font-effect-anaglyph"><h1> people speaking from the {{ region }} </h1></div>
+    
+
+    <body onLoad="scrollDiv_init()">
+      <div id="scrollingDiv" style="overflow:auto;width:800px;height:800px">
+        {% for region_phrase_tuple in region_phrases_tuples %}
+          <p> – – – – – – – – – – – – – – – – – – – – – – – – – – – – </p>
+            <h1>{{ region_phrase_tuple[2] }}
+            </h1>
+          </p>
+          <p> What   
+            <a onMouseOver="pauseDiv()" onMouseOut="resumeDiv()" href="/phrases/{{region_phrase_tuple[3]}}" >
+              {{ region_phrase_tuple[0] }} {{region_phrase_tuple[1]}}
+            </a>
             feels.
-        </p>
-
-    {% endfor %}
-  </div>
-      
+          </p>
+        {% endfor %}
+      </div>
+    </body>
+  </html>
+</main>
 
 {% endblock %}

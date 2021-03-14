@@ -1,18 +1,29 @@
 {% extends 'base.html' %}
-{% block title %}Sort by {{ month_name }} {% endblock %}
+{% block title %} {{ month_name }} phrases {% endblock %}
 
 {% block body %}
-<h1 style="color:#ff005b">The Internet Is a Thing That Makes Us Feel</h1>
-<p> Touch the individual phrases to learn more about each.</p>
-    <div>
-        {% for phrase in phrases_by_month %}
-            <p> <a href="/phrases/{{phrase[3]}}">{{ phrase.phrase_text }}</a>
-            </p>
-        {% endfor %}
-    </div>
   
-    <a href="/phrases/{{phrase[3]}}">
-        {{phrase[1]}}
-      </a>
+  <main class="container">
+    <div class="font-effect-anaglyph"><h1> according to time </h1></div>
+      
+  
+      <body onLoad="scrollDiv_init()">
+        <div id="scrollingDiv" style="overflow:auto;width:800px;height:800px">
+          {% for phrase_by_month_tuple in phrases_by_month_tuples %}
+            <p> – – – – – – – – – – – – – – – – – – – – – – – – – – – – </p>
+              <h1>{{ phrase_by_month_tuple[2] }}
+              </h1>
+            </p>
+            <p> What   
+              <a onMouseOver="pauseDiv()" onMouseOut="resumeDiv()" href="/phrases/{{phrase_by_month_tuple[3]}}" >
+                {{ phrase_by_month_tuple[0] }} {{phrase_by_month_tuple[1]}}
+              </a>
+              feels.
+            </p>
+          {% endfor %}
+        </div>
+      </body>
+    </html>
+  </main>
 
 {% endblock %}
