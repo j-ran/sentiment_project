@@ -16,11 +16,19 @@
   </p>
 
   <div id="state_deaths">
-    <p>  
-      {{ tot_death }} people in {{ phrase.phrase_state }} died from Covid.
+    <p>
+      <form method="post" action="/sort_by_region" class="inline">
+        {{ tot_death }} people in 
+          <input type="hidden" name="region" value="{{phrase.phrase_region}}">
+            <button type="submit" name="region" value="{{phrase.phrase_region}}" class="link-button">
+              {{phrase.phrase_state}}
+            </button>
+      </form>
+        died from Covid.
     </p>
   </div>
-  
+
+
   <div id="vaccine_tot">
     <p>  
       {{ tot_vaccines }} distributed across the nation.

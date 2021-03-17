@@ -1,108 +1,115 @@
 {% extends 'base.html' %}
-{% block title %}Sentiment Project Add A Phrase{% endblock %}
+{% block title %} make your own{% endblock %}
+
 
 {% block body %}
 
-  <h1 style="color:#ff005b">Add a new phrase to the collection.</h1>
+<body style="margin-bottom: 20%; margin-top: 5%;">
+  <main class="container">
+
+    <div>
+      <p><a href="/sort_three_ways">See</a> prior phrases now, or continue on ... 
+      </p>
+    </div>
+      
+    <div class="font-effect-anaglyph">
+      <h1>Remember the beginning of the pandemic, back in <font class="letter-space">20</font><div class="glitch" data-text="21">20</div> ...
+      </h1>
+    </div>
+
+      <div id="here-1">
+        <p>Tap<button id="here-1a" type="submit" name="here-1" class="link-button">here</button>to help you remember
+        </p>  
+      </div>
+
+        <div id="prelim-1" style="display: none">
+          <form>
+            <p> Are you thinking about the feelings of last spring? </p>
+              <label class="container-2" for="gimme_a_sec">
+                <a class="button-blur">gimme a sec ...</a>
+                  <input type="radio" id="gimme_a_sec" name="think_about_it">
+                    <span class="checkmark"></span>
+              </label> 
+              <label class="container-2" for="yes_i_am">
+                <a id="prelim-1a" class="button-blur">yes, I am</a>
+                  <input type="radio" name="think_about_it">
+                    <span class="checkmark"></span>
+              </label>      
+          </form>       
+        </div>    
+            
+        <div id="prelim-2" style="display: none">
+          <form>
+            <p> Were some of your expectations for yourself different then? </p>           
+              <label class="container-2" for="not_really">
+                <a class="button-blur">not really</a>
+                  <input type="radio" id="not_really" name="expectations_different">
+                    <span class="checkmark"></span>
+              </label>     
+              <label class="container-2" for="for_sure">   
+                <a id="prelim-2a" class="button-blur">for sure</a>
+                  <input type="radio" name="expectations_different">
+                    <span class="checkmark"></span>
+              </label>
+          </form>
+        </div>
+
+        <div id="prelim-3" style="display: none">
+          <form>
+            <p> Is there something you would have said to yourself then that you only know now? </p> 
+              <label class="container-2" for="not_knowing_has_been_nice">     
+                <a id="prelim-3a" class="button-blur">no, not knowing the future has been nice</a>
+                  <input type="radio" name="told_yourself">
+                    <span class="checkmark"></span>
+              </label>
+              <label class="container-2" for="yes">
+                <a class="button-blur">yeah, I wish I'd been better prepared for this past year</a>
+                  <input type="radio" id="yeah" name="told_yourself">
+                    <span class="checkmark"></span>
+              </label>
+          </form>      
+        </div> 
+
+
+          <div id="thinking-1" style="display: none">  
+            <p>
+              mmmm ... okay – tap<button id="thinking-1a" type="submit" name="mmm – thinking ..." class="link-button">here</button>
+            </p>
+          </div>  
   
-  
-    <p>
-      Remember the beginning of the pandemic, back in 2020 ...</p>
-        <div>
-          <p>Touch <font style="color:#ff005b">here</font> to help you remember</p>
-          </div>
-              
-            <div>
-              <p> Are you thinking about the feelings of last spring? </p>
-                <input type="radio" id="gimme_a_sec" name="think_about_it" value="no" required>
-                  <label for="gimme_a_sec">gimme a sec ...</label>
-                <input type="radio" id="yes" name="think_about_it" value="yes" required>
-                  <label for="yes">yes, I am</label>
-            </div>    
+        <div id="thinking-2" style="display: none">    
+          <p> Now, thinking about the future, what worries come up?</p>
+          <p> Lately, what's wonderful?</p>
                 
-            <div>
-              <p> Were some of your expectations for yourself different then? </p>           
-                <input type="radio" id="not_really" name="expectations_different" value="no" required>
-                  <label for="not_really">not really</label>
-                <input type="radio" id="yes" name="expectations_different" value="yes" required>
-                  <label for="yes">for sure</label>
+            <div id="add-phrase">
+              <form action="/add_new_phrase" method="POST">
+                <p> 
+                  <input type="text" maxlength="140" size="80" name="phrase_text" placeholder="write what you want to remember about how you feel now (max 140 characters)" required>
+                </p>
+                <p> 
+                  <input type="text" maxlength="5" name="zip" placeholder="current zipcode" required>
+                </p>
+              </form>      
             </div>
 
-            <div>
-              <p> Is there something you would have said to yourself then that you only know now? </p> 
-                <input type="radio" id="not_knowing_has_been_nice" name="told_yourself" value="no" required>
-                  <label for="not_knowing_has_been_nice"> no – not knowing the future has been nice </label>
-                <input type="radio" id="yes" name="told_yourself" value="yes" required>
-                  <label for="yes">yeah, I wish I'd been better prepared for this past year</label>
+            <div id="metadata">
+              <form>
+                <p> To display your phrase together with others, please add: 
+                </p>
+                <p> 
+                  <input type="text" maxlength="20" name="job_at_phrase" placeholder="current job" required>
+                </p>
+                <p> 
+                  <input type="text" maxlength="3" name="age_at_phrase" placeholder="age ('65+' is okay)" required>
+                </p>
+                <p>
+                  <input type="submit">
+                </p>
+              </form>
             </div>  
-                
-              <div><p>  
-                <form>
-                  <input type="submit" value="you've got me thinking">
-                </form></p> 
-              </div>  
-
-                <div>    
-                  <p> Now, when you think about the future, what worries come up?</p>
-                  <p> Lately, what's wonderful?</p>
-                    <div>
-                      <p> Touch <font style="color:#ff005b">here</font> to be here, now. </p>
-                    </div>
-                </div>
-                    
-              <form action="/add_new_phrase" method="POST">
-                <div>
-                  <p> A sentence about what you want to remember about how you feel now (max 140 characters) 
-                    <input type="text" maxlength="140" size="80" name="phrase_text" required>
-                  </p>
-                  
-                  <p>
-                    Zipcode at current location <input type="text" maxlength="5" name="zip" required>
-                  </p>
-
-                    <div>
-                      Are you at __ , ___ ? Yes, or reset and show a text box to enter city and state.
-                    </div>
-                </div>
-                
-                  <div> 
-                    <p> Before submitting this, do you mean __ instead of __, or what you wrote is right?
-                    </p> 
-                    <form>
-                      <input type="submit" value="it's right!"> 
-                      <input type="reset" value="edit it">
-                    </form> 
-                  </div>       
-  
-                  <div>
-                    <form>
-                      <p> To display your phrase together with others, please add: 
-                      </p>
-                    
-                      <p> current job or role (max 20 characters)
-                        <input type="text" maxlength="20" name="job_at_phrase" required>
-                      </p>
-                    
-                      <p> age (your actual age, or '65+')
-                        <input type="text" maxlength="3" name="age_at_phrase" required>
-                      </p>
-                        
-                        <p>
-                          <input type="submit">
-                        </p>
-                    </form>
-                  </div>        
-
-                <div>  
-                  <p>
-                    <a href="/sort_by_one_region">see my phrase
-                    </a>
-                  </p>  
-                  
-                  <p>
-                    <a href="/phrase_collection"> see general collection of phrases </a>
-                  </p> 
-                </div>
-
+        </div>         
+  </main>
+</body>    
+        
 {% endblock %}
 
