@@ -139,34 +139,6 @@ def show_metadata(phrase_id):
 
 ######### ------------- LOGIN ------------- #########
 ######### --------------------------------- #########
-@app.route('/login')
-def show_login_page():
-    """Display the html where the 'login' and 'create_account' forms are."""
-
-    return render_template('login.html')
-
-
-@app.route('/login', methods=['POST'])
-def login():
-    """Login existing user and put into session."""
-    
-    email = request.form.get('email')
-    password = request.form.get('password')
-    user = crud.get_user_by_email(email)
-
-    if user:
-        if password == user.password: 
-            # add user to session 
-            session['user_id'] = user.user_id 
-            return redirect('/add_new_phrase') 
-        else:
-            flash('The password doesn\'t match the email. Please try again.')
-            return render_template('login.html', user=user)
-    else:
-        flash('Thanks! We don\'t have any phrases from you yet. Please create an account.')
-        return redirect('/create_account')
-
-
 @app.route('/create_account')
 def show_create_account():
     """Display the html where the 'login' and 'create_account' forms are."""
@@ -193,8 +165,40 @@ def create_account():
         new_user = crud.create_user(fname=fname, lname=lname, email=email, password=password, consent=False)
         session['user_id'] = new_user.user_id
         
-        flash(f'Account for {new_user.fname} created!')
-        return render_template('add_new_phrase.html', user=user, new_user=new_user)                      
+        flash(f'thank you, {new_user.fname}, for making an account')
+        return redirect('/add_new_phrase')                      
+
+
+@app.route('/login')
+def show_login_page():
+    """Display the html where the 'login' and 'create_account' forms are."""
+    
+    if 'user_id' in session:  
+        return redirect('/add_new_phrase')
+
+    else:
+        return render_template('login.html')
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    """Login existing user and put into session."""
+    
+    email = request.form.get('email')
+    password = request.form.get('password')
+    user = crud.get_user_by_email(email)
+
+    if user:
+        if password == user.password: 
+            # add user to session 
+            session['user_id'] = user.user_id 
+            return redirect('/add_new_phrase') 
+        else:
+            flash('The password doesn\'t match the email. Please try again.')
+            return render_template('login.html', user=user)
+    else:
+        flash('Thanks! We don\'t have any phrases from you yet. Please create an account.')
+        return redirect('/create_account')
 
 
 
@@ -241,7 +245,7 @@ def add_new_phrase():
  
     # get phrase from form
     phrase_text = request.form.get('phrase_text')
-    ### Add code in here to check for a repeated phrase and rejct if it's a repeat.
+    ### Add code in here to check for a repeated phrase and rejct if it's a repeat.       
 
     # take in the following to make a Phrase –
     phrase_date  = helper.format_date_now() # date for CRUD is in form '%Y-%m-%d', stored as a string
@@ -261,27 +265,28 @@ def add_new_phrase():
     
     phrase_and_score = crud.create_phrase_and_score(phrase_date=phrase_date, phrase_city=phrase_city, phrase_state_abbr=phrase_state_abbr, phrase_state=phrase_state, phrase_region=phrase_region, job_at_phrase=job_at_phrase, age_at_phrase=age_at_phrase, phrase_text=phrase_text, user_id=user_id, US_or_no=US_or_no)
 
-    random_region_phrases = crud.get_region_phrases_by_phrase_text()
-    first_region_phrase = random_region_phrases[0]
-    region_name = first_region_phrase.phrase_region
+    # get region of new phrase
+    region = phrase_and_score.phrase_region
+    # random_region_phrases = crud.get_region_phrases_by_phrase_text()
+    # first_region_phrase = random_region_phrases[0]
+    # region_name = first_region_phrase.phrase_region
 
 
-    flash(f'While we get your phrase ready, look at phrases in the {region_name} region!')
-    return render_template('sort_by_one_region.html', 
-                                region_phrases=random_region_phrases, 
-                                phrase_region=region_name) #### You should be able to do a redirect here
+    flash(f'about to show phrases in the { region } region ...')
+    return redirect('/sort_by_user_region')
+                                # region_phrases=random_region_phrases, 
+                                # phrase_region=phrase_region) #### You should be able to do a redirect here
                                                            #### Which means you do not have to run the crud to get random phrases.
 
 
 
-######### ----- DISPLAY PHRASES FROM ONE REGION ----- #########
+######### ----- DISPLAY PHRASES FROM USER REGION ----- #########
 ######### ------------------------------------------- #########
-@app.route('/sort_by_one_region')
-def sort_by_one_region():
+@app.route('/sort_by_user_region')
+def sort_by_user_region():
     """Take the most recent phrase from the user
-       and display in a regional collection.
-       If no user in session, choose a random region
-       from which to display phrases."""
+       and redirect to regional collection.
+       If no user in session, choose a random region."""
     
     # check if user_id is in session
     # if in session, get all user's phrases with CRUD function
@@ -292,9 +297,11 @@ def sort_by_one_region():
         # return most recent phrase
         # in a collection of phrases from the same region  
         most_recent_user_phrase = helper.get_most_recent_of_user_phrases(user_phrases)
+        region = most_recent_user_phrase.phrase_region
         most_recent_phrase_text = most_recent_user_phrase.phrase_text
-        region_phrases = crud.get_region_phrases_by_phrase_text(most_recent_phrase_text)
+        region_phrases = crud.get_phrases_by_region(region)
 
+        # create tuple with: [a_or_an, phrase_obj.job_at_phrase, phrase_obj.phrase_text, phrase_obj.phrase_id]
         region_phrases_tuples = []
         for region_phrase in region_phrases:
             region_phrase_tuple = helper.create_tuple_for_phrase(region_phrase.phrase_id)
@@ -303,50 +310,34 @@ def sort_by_one_region():
         return render_template('sort_by_one_region.html', 
                                 region_phrases_tuples=region_phrases_tuples,
                                 region_phrase_tuple=region_phrase_tuple,
-                                region_phrases=region_phrases, 
-                                phrase_region=most_recent_user_phrase.phrase_region)
-    
-    # if no user is in session, return phrases from  
-    # a region which is chosen randomly
-    else:
-        region_phrases = crud.get_region_phrases_by_phrase_text()
-        first_region_phrase = region_phrases[0]
-        region_name = first_region_phrase.phrase_region
-        flash(f'Please log-in to see your phrase with others from your region. These are phrases from the {region_name}.')
-    
-        return render_template('sort_by_one_region.html', 
                                 region_phrases=region_phrases,  
-                                phrase_region=region_name)
+                                region=region)
 
-
-
-######### ---- DISPLAY ONE PHRASE FROM EACH REGION ---- #########
-######### --------------------------------------------- #########
-@app.route('/one_phrase_per_region')
-def show_one_phrase_per_region():
-    """Return one phrase for each region.
-       If a user is in session, include one of their phrases."""
-    
-    one_phrase_per_region_list = []
-    
-    if 'user_id' in session:
-        user_id = session['user_id']
-        print('****userid'*5, user_id)
-        user_phrases = crud.get_phrases_by_user_id(user_id)
-        rand_index = randint(0, len(user_phrases)-1)
-        rand_user_phrase = user_phrases[rand_index]
-        one_phrase_per_region_list.append(rand_user_phrase)
-        one_phrase_per_other_regions = crud.get_one_phrase_per_region_unless_given(rand_user_phrase.phrase_region)
-        for phr in one_phrase_per_other_regions:
-            one_phrase_per_region_list.append(phr)
-
+    # if no user is in session, go to sort_three_ways
     else:
-        one_phrase_per_region = crud.get_one_phrase_per_region_unless_given()
-        for phr in one_phrase_per_region:
-            one_phrase_per_region_list.append(phr)
 
-    return render_template('one_phrase_per_region.html', one_phrase_per_region_list=one_phrase_per_region_list)
+        return redirect('/sort_three_ways')
 
+
+
+######### ----- A ONE-REGION DISPLAY ----- #########
+######### -------------------------------- #########
+@app.route('/sort_by_one_region/<region>')
+def sort_by_one_region(region):
+    """This is to show a region from a link on phrase_metadata.html"""
+
+    region_phrases = crud.get_phrases_by_region(region)
+    
+    region_phrases_tuples = []
+    for region_phrase in region_phrases:
+        region_phrase_tuple = helper.create_tuple_for_phrase(region_phrase.phrase_id)
+        region_phrases_tuples.append(region_phrase_tuple)
+
+    return render_template('sort_by_one_region.html', 
+                    region_phrases_tuples=region_phrases_tuples,
+                    region_phrase_tuple=region_phrase_tuple,
+                    region_phrases=region_phrases,  
+                    region=region)
 
 
 ######### -------- SORT THREE WAYS -------- #########
@@ -375,14 +366,29 @@ def get_phrases_by_month():
     # it is in the form of a date_string, which is taken by the helper function
     # run helper function for full month name 
     date_str = request.form.get('month')
+    print("***"*10, "date_str", date_str)
     month_num = date_str[5:7]
+    print("***"*10, "month_num", month_num)
     month_name = helper.month_name_from_num(month_num)
     # run helper function to get list of phrase texts
+    print("***"*10, "month_name", month_name)
     phrases_by_month = crud.get_phrases_by_month(date_str)
-    
-    return render_template('sort_by_month.html', 
-                            month_name=month_name, 
-                            phrases_by_month=phrases_by_month)
+    # filling in for empty months for referring to June 2020
+    if phrases_by_month == []:
+        phrases_by_month = crud.get_phrases_by_month('2020-06-')
+    print("***"*10, "phrases_by_month", phrases_by_month)
+    phrases_by_month_tuples = []
+    for phrase_by_month in phrases_by_month:
+        phrase_by_month_tuple = helper.create_tuple_for_phrase(phrase_by_month.phrase_id)
+        phrases_by_month_tuples.append(phrase_by_month_tuple)
+
+
+    return render_template('sort_by_month.html',  
+                            month_name=month_name,
+                            phrases_by_month=phrases_by_month,
+                            phrase_by_month_tuple=phrase_by_month_tuple,
+                            phrases_by_month_tuples=phrases_by_month_tuples
+                            )
 
 
 
@@ -397,13 +403,22 @@ def show_sort_three_ways_feeling():
 
 @app.route('/sort_by_feeling', methods=['POST'])
 def get_phrases_by_feeling():
-    """Return the phrases for a given feeling."""
+    """Return all phrases that match either a "0" or "1" feeling."""
 
     feeling = request.form.get('feeling')
-    phrases_by_feeling = helper.sort_by_feeling(feeling)
-    
+    phrases_by_feeling = crud.get_phrases_by_polar_score(feeling)
+
+    phrases_by_feeling_tuples = []
+    for phrase_by_feeling in phrases_by_feeling:
+        phrase_by_feeling_tuple = helper.create_tuple_for_phrase(phrase_by_feeling.phrase_id)
+        phrases_by_feeling_tuples.append(phrase_by_feeling_tuple)
+
+
     return render_template('sort_by_feeling.html',  
-                            phrases_by_feeling=phrases_by_feeling)    
+                            phrase_by_feeling_tuple=phrase_by_feeling_tuple,
+                            phrases_by_feeling_tuples=phrases_by_feeling_tuples,
+                            phrases_by_feeling=phrases_by_feeling,  
+                            feeling=feeling)    
 
 
 
@@ -433,8 +448,11 @@ def get_phrases_by_region_name():
                     region_phrases_tuples=region_phrases_tuples,
                     region_phrase_tuple=region_phrase_tuple,
                     region_phrases=region_phrases,  
-                    phrase_region=region)
+                    region=region)
 
+@app.route('/testing_buttons')
+def show_page():    
+    return render_template('test_buttons.html')
 
 
 if __name__ == '__main__':
