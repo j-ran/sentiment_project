@@ -3,6 +3,7 @@ A CRUD file helps simplify the Flask route functions called in server.py. """
 
 # The following is defined in model.py –
 from model import db, connect_to_db, User, Phrase, Sentiment #Interaction, Interaction_type
+
 from score import swn_polarity
 
 from datetime import datetime
@@ -113,6 +114,11 @@ def get_phrases_by_user_id(user_id):
     return phrases
 
 
+def get_phrases_by_polar_score(polar_score):
+    """Returns all phrases of a certain sentiment, using "0" or "1"."""
+    phrases = Phrase.query.filter_by(polar_score=polar_score).all()
+    return phrases
+
 
 def get_phrase_collection():
     """Return entire phrase collection."""
@@ -135,7 +141,29 @@ def get_a_few_phrases():
     return random_phrases
 
 
-def get_a_few_phrases_by_region(phrase_text=None):
+def get_phrases_by_month(date_str):
+    """Return a list of all phrases from the month number of a given date.
+       – recall Phrases store phrase_date as '2021-02-18'."""
+
+    # date_str = "2021-02-18"
+    # This does not work perfectly yet.
+    date_str = date_str[:8]
+    phrases_by_month = Phrase.query.filter(Phrase.phrase_date.match("%" + date_str + "%")).all()
+    return phrases_by_month
+    
+
+def get_phrases_by_region(region):
+    """Return a list of all phrases from a given region.
+       – recall Phrases store phrase_region as a string,
+       'Pacific', 'West', 'Midwest','Mid-Atlantic', 'Southeast', 
+       'New England', or 'Territories'."""
+
+    phrases_by_region = Phrase.query.filter_by(phrase_region=region).all()
+    
+    return phrases_by_region
+
+
+def get_region_phrases_by_phrase_text(phrase_text=None):
     """Return a random selection of 4 phrases from a region."""
 
     random_phrases_for_region = []
