@@ -4,12 +4,19 @@
 from model import db, connect_to_db, User, Phrase, Sentiment #Interaction, Interaction_type
 from score import swn_polarity
 
+import crud
+
 from random import choice, randint
 
 from datetime import date
 from datetime import time
 from datetime import datetime
 from datetime import timedelta
+
+
+##############################################################
+##############################################################
+############### SECTION ON CREATING NEW PHRASE ###############
 
 ######### -------- DATE OF SUBMISSION -------- #########
 ######### ------------------------------------ #########
@@ -76,8 +83,11 @@ def suggester(word):
     """
     
     d = enchant.Dict("en_US")
-    if d.check(word) == False:
-        return (d.suggest(word)[:3])
+    if d.check(word) == True:
+        print('correct spelling')
+    else:
+        return (d.suggest(word)[:3]) 
+           
         
 
 def is_email(email_entry):
@@ -103,109 +113,9 @@ def is_email(email_entry):
         return True   
 
 
-######### ---- CDC SOCRATA API FOR VACCINATIONS ---- #########
-######### ------------------------------------------ #########
-import crud 
-import requests
-
-def get_vaccine_data(phrase_id):
-    """Show vaccine total for the day of a particular phrase. 
-       Query the CDC API for COVID data.
-       The total will be int(0) if no vaccines have been allocated.
-       The total will be int(0) if one of the APIs does not return. """
-
-    phrase = crud.get_phrase_by_phrase_id(phrase_id)
-    #phrase_state = phrase.phrase_state
-    print(phrase.phrase_text)
-    phrase_date = str(phrase.phrase_date)
-    print(phrase_date)
-    phrase_date_str = phrase_date[:10]
-    print(phrase_date_str)
-
-    def get_most_recent_past_monday(phrase_date_str):
-        """Takes in the date as a string, such as '2021-02-04' 
-        and returns the most recent past Monday. 
-        The string is in form'%Y-%m-%d'.
-        
-        >>> get_most_recent_past_monday('2021-02-04')
-        2021-02-01
-        """
-
-        date_str = phrase_date_str
-        date_str_obj = datetime.strptime(date_str, '%Y-%m-%d') #create datetime obj
-        #print(date_str_obj)
-        day = date_str_obj.weekday() # index of weekday, with Monday at '0' index
-        #print(day)
-        days = (0 - day) # how many days from Monday
-        # print(days)
-        new_date=str(date_str_obj + timedelta(days=days)) # datetime obj into a datetime.datetime obj
-        #print(new_date)
-        mon_date=new_date[:10]                            # so as to use with timedelta
-
-        return mon_date # – should be of the form str(2021-02-15)
-    
-    mon_date = get_most_recent_past_monday(phrase_date_str)
-    print(f'mon_date = <{mon_date}>')
-    # vaccine01 is Pfizer; starts 2020-12-14
-    vaccine01_response = requests.get(f'https://data.cdc.gov/resource/saz5-9hgg.json?week_of_allocations={mon_date}T00:00:00.000')
-    # vaccine02 is Moderna; starts 2020-12-21
-    vaccine02_response = requests.get(f'https://data.cdc.gov/resource/b7pe-5nws.json?week_of_allocations={mon_date}T00:00:00.000')
-    # vaccine03 is Janssen; starts 2021-03-01
-    vaccine03_response = requests.get(f'https://data.cdc.gov/resource/w9zu-fywh.json?week_of_allocations={mon_date}T00:00:00.000')
-
-    # if one of the queries is successful (meaning returning int(200)), continue:
-    if vaccine01_response.status_code == 200 or vaccine02_response.status_code == 200 or vaccine03_response.status_code == 200: 
-        print('***pfizer'*3, vaccine01_response.status_code)
-        print('***moderna'*3, vaccine02_response.status_code)
-        print('***janssen'*3, vaccine03_response.status_code)
-    else:
-        print('else return on status.code')
-        tot_vaccines = 0
-        return tot_vaccines
-    
-    response01 = vaccine01_response.json()
-    response02 = vaccine02_response.json()
-    response03 = vaccine03_response.json()
-    
-    # if one of the responses contain numbers, continue:
-    if bool(response01) == True or bool(response02) == True or bool(response03) == True:
-        print(bool(response01)) 
-    else:
-        print('else return on Truthies')
-        tot_vaccines = 0
-        return tot_vaccines
-    
-    # get Pfizer total from API return
-    response01_nums = []
-    if response01[0]:
-        for i in range(len(response01)):
-            num = int(response01[i]['_2nd_dose_allocations'])
-            response01_nums.append(num)
-        response01_tot = sum(response01_nums)    
-        # print('***response01_tot'*10, response01_tot)
-
-    # get Moderna total from API return
-    response02_nums = []
-    if response02[0]:
-        for i in range(len(response02)):
-            num = int(response02[i]['_2nd_dose_allocations'])
-            response02_nums.append(num)
-        response02_tot = sum(response02_nums)    
-        # print('***response02_tot'*10, response02_tot)
-    
-    # get Janssen total from API return
-    response03_nums = []
-    if response03[0]:
-        for i in range(len(response03)):
-            num = int(response03[i]['_1st_dose_allocations'])
-            response03_nums.append(num)
-        response03_tot = sum(response03_nums)    
-        # print('***response03_tot'*10, response03_tot)
-       
-    tot_vaccines = (response01_tot + response02_tot + response03_tot)
-    print('***tot_vaccines'*10, tot_vaccines)
-    return tot_vaccines    
-
+##############################################################
+##############################################################
+################# SECTION ON SORTING PHRASES #################
 
 ######### ---- PREPPING PHRASES FOR REGION-BASED SORTS ---- #########
 ######### ------------------------------------------------- #########
@@ -312,6 +222,8 @@ def get_most_recent_of_user_phrases(user_phrases):
 ######### ------ MONTH-NAME CONVERSION ------ #########
 ######### ----------------------------------- #########
 def month_name_from_num(month_num):
+    """This is for a month-based sort."""
+
     month_name_dict = { '01':'January', '02':'February', 
                         '03':'March', '04':'April', 
                         '05':'May', '06':'June',
@@ -322,19 +234,126 @@ def month_name_from_num(month_num):
     return month_name_dict[month_num]
 
 
+##############################################################
+##############################################################
+############ SECTION ON RETURNING PHRASE METADATA ############
 
-######### ------- FEELINGS-BASED SORT ------- #########
-######### ------------------------------------ #########
-def sort_by_feeling(feeling):
-    """Return all phrases that match either a "0" or "1" feeling."""
+######### ---- MAKE A TUPLE OF PHRASE ATTRIBUTES ---- #########
+######### ------------------------------------------- #########
+
+def create_tuple_for_phrase(phrase_id):
+    """Create a tuple of the job, its corresponding article, the text, 
+       and the id for a phrase."""
+
+    phrase_obj = crud.get_phrase_by_phrase_id(phrase_id)
+    a_or_an = crud.get_a_or_an(phrase_obj.job_at_phrase)
+    phrase_tuple = (a_or_an, phrase_obj.job_at_phrase, phrase_obj.phrase_text, phrase_obj.phrase_id)
+        
+    return phrase_tuple
+
+
+######### ---- CDC SOCRATA API FOR VACCINATIONS ---- #########
+######### ------------------------------------------ #########
+import crud 
+import requests
+
+def get_vaccine_data(phrase_id):
+    """Show vaccine total for the day of a particular phrase. 
+       Query the CDC API for COVID data.
+       The total will be int(0) if no vaccines have been allocated.
+       The total will be int(0) if one of the APIs does not return. """
+
+    phrase = crud.get_phrase_by_phrase_id(phrase_id)
+    #phrase_state = phrase.phrase_state
+    print(phrase.phrase_text)
+    phrase_date = str(phrase.phrase_date)
+    print(phrase_date)
+    phrase_date_str = phrase_date[:10]
+    print(phrase_date_str)
+
+    def get_most_recent_past_monday(phrase_date_str):
+        """Takes in the date as a string, such as '2021-02-04' 
+        and returns the most recent past Monday. 
+        The string is in form'%Y-%m-%d'.
+        
+        >>> get_most_recent_past_monday('2021-02-04')
+        2021-02-01
+        """
+
+        date_str = phrase_date_str
+        date_str_obj = datetime.strptime(date_str, '%Y-%m-%d') #create datetime obj
+        #print(date_str_obj)
+        day = date_str_obj.weekday() # index of weekday, with Monday at '0' index
+        #print(day)
+        days = (0 - day) # how many days from Monday
+        # print(days)
+        new_date=str(date_str_obj + timedelta(days=days)) # datetime obj into a datetime.datetime obj
+        #print(new_date)
+        mon_date=new_date[:10]                            # so as to use with timedelta
+
+        return mon_date # – should be of the form str(2021-02-15)
     
-    sql = """SELECT phrase_text FROM phrases 
-             WHERE polar_score = :polar_score
-             """
-    cursor = db.session.execute(sql, {"polar_score": feeling})
-    result = cursor.fetchall()
+    mon_date = get_most_recent_past_monday(phrase_date_str)
+    print(f'mon_date = <{mon_date}>')
+    # vaccine01 is Pfizer; starts 2020-12-14
+    vaccine01_response = requests.get(f'https://data.cdc.gov/resource/saz5-9hgg.json?week_of_allocations={mon_date}T00:00:00.000')
+    # vaccine02 is Moderna; starts 2020-12-21
+    vaccine02_response = requests.get(f'https://data.cdc.gov/resource/b7pe-5nws.json?week_of_allocations={mon_date}T00:00:00.000')
+    # vaccine03 is Janssen; starts 2021-03-01
+    vaccine03_response = requests.get(f'https://data.cdc.gov/resource/w9zu-fywh.json?week_of_allocations={mon_date}T00:00:00.000')
 
-    return result
+    # if one of the queries is successful (meaning returning int(200)), continue:
+    if vaccine01_response.status_code == 200 or vaccine02_response.status_code == 200 or vaccine03_response.status_code == 200: 
+        print('***pfizer'*3, vaccine01_response.status_code)
+        print('***moderna'*3, vaccine02_response.status_code)
+        print('***janssen'*3, vaccine03_response.status_code)
+    else:
+        print('else return on status.code')
+        tot_vaccines = 0
+        return tot_vaccines
+    
+    response01 = vaccine01_response.json()
+    response02 = vaccine02_response.json()
+    response03 = vaccine03_response.json()
+    
+    # if one of the responses contain numbers, continue:
+    if bool(response01) == True or bool(response02) == True or bool(response03) == True:
+        print(bool(response01)) 
+    else:
+        print('else return on Truthies')
+        tot_vaccines = 0
+        return tot_vaccines
+    
+    # get Pfizer total from API return
+    response01_nums = []
+    if response01[0]:
+        for i in range(len(response01)):
+            num = int(response01[i]['_2nd_dose_allocations'])
+            response01_nums.append(num)
+        response01_tot = sum(response01_nums)    
+        # print('***response01_tot'*10, response01_tot)
+
+    # get Moderna total from API return
+    response02_nums = []
+    if response02[0]:
+        for i in range(len(response02)):
+            num = int(response02[i]['_2nd_dose_allocations'])
+            response02_nums.append(num)
+        response02_tot = sum(response02_nums)    
+        # print('***response02_tot'*10, response02_tot)
+    
+    # get Janssen total from API return
+    response03_nums = []
+    if response03[0]:
+        for i in range(len(response03)):
+            num = int(response03[i]['_1st_dose_allocations'])
+            response03_nums.append(num)
+        response03_tot = sum(response03_nums)    
+        # print('***response03_tot'*10, response03_tot)
+       
+    tot_vaccines = (response01_tot + response02_tot + response03_tot)
+    print('***tot_vaccines'*10, tot_vaccines)
+    return tot_vaccines    
 
 
 
